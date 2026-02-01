@@ -20,11 +20,11 @@ internal sealed class DownloaderCdkStackConfig
         UpdateVideoStatusLambdaName = GetCdkValue(cdkPrefix, "update-video-status", localConfig);
         VideoRegisteredTopicArn = GetCdkValue(cdkPrefix, "video-registered-sns-topic-arn", localConfig);
 
-        UploadBotToken = GetSsmValue(stack, nameof(UploadBotToken), ssmPrefix);
-        UploadDestinationChatId = GetSsmValue(stack, nameof(UploadDestinationChatId), ssmPrefix);
-        TelegramAppId = GetSsmValue(stack, nameof(TelegramAppId), ssmPrefix);
-        TelegramAppHash = GetSsmValue(stack, nameof(TelegramAppHash), ssmPrefix);
-        ThumbnailBotUsername = GetSsmValue(stack, nameof(ThumbnailBotUsername), ssmPrefix);
+        UploadBotToken = GetSsmValue(stack, nameof(UploadBotToken), ssmPrefix, localConfig);
+        UploadDestinationChatId = GetSsmValue(stack, nameof(UploadDestinationChatId), ssmPrefix, localConfig);
+        TelegramAppId = GetSsmValue(stack, nameof(TelegramAppId), ssmPrefix, localConfig);
+        TelegramAppHash = GetSsmValue(stack, nameof(TelegramAppHash), ssmPrefix, localConfig);
+        ThumbnailBotUsername = GetSsmValue(stack, nameof(ThumbnailBotUsername), ssmPrefix, localConfig);
     }
 
     public string AlertEmail { get; }
@@ -53,8 +53,11 @@ internal sealed class DownloaderCdkStackConfig
         return localValue is { Length: > 0 } ? localValue : Fn.ImportValue(cdkPrefix + key);
     }
 
-    private static string GetSsmValue(Stack stack, string key, string ssmPrefix)
+    private static string GetSsmValue(Stack stack, string key, string ssmPrefix, IConfigurationRoot localConfig)
     {
-        return StringParameter.ValueForStringParameter(stack, ssmPrefix + key);
+        string? localValue = localConfig.GetValue<string>(key);
+        return localValue is { Length: > 0 }
+            ? localValue
+            : StringParameter.ValueForStringParameter(stack, ssmPrefix + key);
     }
 }
