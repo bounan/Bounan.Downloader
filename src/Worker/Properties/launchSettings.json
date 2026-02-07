@@ -11,7 +11,7 @@
         "Processing__Threads": "1"
       }
     },
-    "Run in Docker (prod)": {
+    "Run locally (prod)": {
       "commandName": "Project",
       "dotnetRunMessages": true,
       "environmentVariables": {
