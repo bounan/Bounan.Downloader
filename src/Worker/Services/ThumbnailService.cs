@@ -4,7 +4,6 @@ using Bounan.Common;
 using Bounan.Downloader.Worker.Configuration;
 using Bounan.Downloader.Worker.Extensions;
 using Bounan.Downloader.Worker.Interfaces;
-using Bounan.LoanApi.Interfaces;
 using Microsoft.Extensions.Options;
 using SixLabors.Fonts;
 using SixLabors.ImageSharp;
@@ -22,11 +21,11 @@ internal partial class ThumbnailService : IThumbnailService
         ILogger<ThumbnailService> logger,
         IOptions<ThumbnailConfig> thumbnailConfig,
         IHttpClientFactory httpClientFactory,
-        ILoanApiComClient loanApiComClient)
+        IShikimoriClient shikimoriClient)
     {
         Logger = logger;
         HttpClientFactory = httpClientFactory;
-        LoanApiComClient = loanApiComClient;
+        ShikimoriClient = shikimoriClient;
 
         _thumbnailConfig = thumbnailConfig.Value;
         ArgumentException.ThrowIfNullOrWhiteSpace(_thumbnailConfig.BotId);
@@ -36,7 +35,7 @@ internal partial class ThumbnailService : IThumbnailService
 
     private IHttpClientFactory HttpClientFactory { get; }
 
-    private ILoanApiComClient LoanApiComClient { get; }
+    private IShikimoriClient ShikimoriClient { get; }
 
     [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "Reviewed")]
     public async Task<Stream> GetThumbnailJpegStreamAsync(
@@ -53,7 +52,7 @@ internal partial class ThumbnailService : IThumbnailService
         // Thumbnail size is limited by Telegram
         image.Mutate(ctx => ctx.Resize(320, 180));
 
-        string animeName = await GetAnimeNameAsync(videoKey.MyAnimeListId, cancellationToken);
+        string animeName = await ShikimoriClient.GetTitleAsync(videoKey.MyAnimeListId, cancellationToken);
         string renamedDub = GetDubName(videoKey.Dub);
         Log.GotAnimeName(Logger, videoKey, animeName, renamedDub);
 
@@ -70,21 +69,6 @@ internal partial class ThumbnailService : IThumbnailService
         Log.SavedThumbnail(Logger, thumbnailStream.Length);
 
         return thumbnailStream;
-    }
-
-    private async Task<string> GetAnimeNameAsync(int malId, CancellationToken cancellationToken)
-    {
-        var searchResult = await LoanApiComClient.SearchAsync(malId, cancellationToken);
-        string[] differentResults = searchResult.Results
-            .Select(result => result.Title)
-            .Distinct()
-            .ToArray();
-        if (differentResults.Length != 1)
-        {
-            Log.DifferentAnimeNames(Logger, differentResults);
-        }
-
-        return searchResult.Results.First().Title;
     }
 
     private static string GetDubName(string originalDub)

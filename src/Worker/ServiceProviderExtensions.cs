@@ -35,6 +35,7 @@ public static class ServiceProviderExtensions
         services.AddSingleton<IAmazonSQS>(_ => awsOptions.CreateServiceClient<IAmazonSQS>());
 
         services.AddSingleton<IAniManClient, AniManClient>();
+        services.AddSingleton<IShikimoriClient, ShikimoriClient>();
         services.AddSingleton<ISqsClient, SqsClient>();
         services.AddSingleton<IVideoCopyingService, VideoCopyingService>();
         services.AddSingleton<IThumbnailService, ThumbnailService>();

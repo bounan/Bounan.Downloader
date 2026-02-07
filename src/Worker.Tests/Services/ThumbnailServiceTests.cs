@@ -2,9 +2,8 @@
 using Bounan.Common;
 using Bounan.Downloader.Worker.Configuration;
 using Bounan.Downloader.Worker.Helpers;
+using Bounan.Downloader.Worker.Interfaces;
 using Bounan.Downloader.Worker.Services;
-using Bounan.LoanApi.Interfaces;
-using Bounan.LoanApi.RefitClients.LoanApiCom.Models;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Moq;
@@ -25,7 +24,7 @@ public class ThumbnailServiceTests
             NullLogger<ThumbnailService>.Instance,
             Options.Create(new ThumbnailConfig { BotId = "@" }),
             Mock.Of<IHttpClientFactory>(),
-            Mock.Of<ILoanApiComClient>());
+            Mock.Of<IShikimoriClient>());
 
         // Act
         async Task Act() =>
@@ -43,7 +42,7 @@ public class ThumbnailServiceTests
             NullLogger<ThumbnailService>.Instance,
             Options.Create(new ThumbnailConfig { BotId = "@" }),
             Mock.Of<IHttpClientFactory>(),
-            Mock.Of<ILoanApiComClient>());
+            Mock.Of<IShikimoriClient>());
 
         // Act
         async Task Act() =>
@@ -89,20 +88,16 @@ public class ThumbnailServiceTests
             .Setup(x => x.CreateClient(It.IsAny<string>()))
             .Returns(new HttpClient(httpMessageHandlerMock.Object));
 
-        var loanApiComClientMock = new Mock<ILoanApiComClient>();
-        loanApiComClientMock
-            .Setup(x => x.SearchAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(
-                new SearchResult(
-                [
-                    new SearchResultItem(animeName, string.Empty),
-                ]));
+        var shikimoriClient = new Mock<IShikimoriClient>();
+        shikimoriClient
+            .Setup(x => x.GetTitleAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(animeName);
 
         var thumbnailService = new ThumbnailService(
             NullLogger<ThumbnailService>.Instance,
             Options.Create(new ThumbnailConfig { BotId = "@aaaaaa_aaaaa_bot" }),
             httpClientFactory.Object,
-            loanApiComClientMock.Object);
+            shikimoriClient.Object);
 
         // Act
         await using var stream = await thumbnailService.GetThumbnailJpegStreamAsync(
