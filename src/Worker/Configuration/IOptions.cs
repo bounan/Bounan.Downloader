@@ -1,4 +1,4 @@
-﻿namespace Bounan.Downloader.Worker.Configuration;
+namespace Bounan.Downloader.Worker.Configuration;
 
 public interface IOptions
 {

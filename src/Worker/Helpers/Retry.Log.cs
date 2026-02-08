@@ -1,4 +1,4 @@
-﻿namespace Bounan.Downloader.Worker.Helpers;
+namespace Bounan.Downloader.Worker.Helpers;
 
 public static partial class Retry
 {

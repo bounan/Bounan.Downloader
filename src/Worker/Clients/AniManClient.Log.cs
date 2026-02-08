@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 
 namespace Bounan.Downloader.Worker.Clients;
 

@@ -1,9 +1,9 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Bounan.Downloader.Worker.Helpers;
 
 /// <summary>
-/// https://stackoverflow.com/questions/1563191/cleanest-way-to-write-retry-logic
+/// https://stackoverflow.com/questions/1563191/cleanest-way-to-write-retry-logic.
 /// </summary>
 [SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "Retry logic")]
 public static partial class Retry
@@ -36,7 +36,7 @@ public static partial class Retry
     {
         ArgumentNullException.ThrowIfNull(action);
 
-        var attempts = 0;
+        int attempts = 0;
         while (true)
         {
             cancellationToken.ThrowIfCancellationRequested();

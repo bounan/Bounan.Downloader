@@ -1,5 +1,7 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using Bounan.Common;
 using Bounan.Downloader.Worker.Configuration;
 using Bounan.Downloader.Worker.Helpers;
@@ -7,8 +9,6 @@ using Bounan.Downloader.Worker.Interfaces;
 using Hls2TlgrUploader.Interfaces;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Options;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 
 namespace Bounan.Downloader.Worker.Services;
 
@@ -22,7 +22,7 @@ internal partial class VideoCopyingService(
     IVideoUploadingService videoUploadingService)
     : IVideoCopyingService
 {
-    private readonly ProcessingOptions _processingOptions = processingConfig.Value;
+    private readonly ProcessingOptions processingOptions = processingConfig.Value;
 
     private static readonly JsonSerializerOptions JsonSerializerOptions = new()
     {
@@ -47,7 +47,7 @@ internal partial class VideoCopyingService(
     {
         Log.ReceivedVideoKey(Logger, videoKey);
         using var innerCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-        innerCts.CancelAfter(_processingOptions.TimeoutSeconds * 1000);
+        innerCts.CancelAfter(processingOptions.TimeoutSeconds * 1000);
 
         ArgumentNullException.ThrowIfNull(videoKey);
         try
@@ -102,7 +102,7 @@ internal partial class VideoCopyingService(
         var sortedPlaylists = playlists
             .OrderBy(pair => pair.Key.Length)
             .ThenBy(pair => pair.Key);
-        var bestQualityPlaylist = _processingOptions.UseLowestQuality
+        var bestQualityPlaylist = processingOptions.UseLowestQuality
             ? sortedPlaylists.First().Value
             : sortedPlaylists.Last().Value;
         Log.ProcessingPlaylist(Logger, bestQualityPlaylist);
@@ -116,7 +116,7 @@ internal partial class VideoCopyingService(
 
         var response = await httpClient.GetAsync(playlist, cancellationToken);
         _ = response.EnsureSuccessStatusCode();
-        var content = await response.Content.ReadAsStringAsync(cancellationToken);
+        string content = await response.Content.ReadAsStringAsync(cancellationToken);
         var videoParts = content
             .Split('\n')
             .Where(line => line.StartsWith("./", StringComparison.Ordinal))
@@ -136,7 +136,7 @@ internal partial class VideoCopyingService(
 
     private static string EncodeMetadata(VideoMetadata metadata)
     {
-        var json = JsonSerializer.Serialize(metadata, JsonSerializerOptions);
+        string json = JsonSerializer.Serialize(metadata, JsonSerializerOptions);
         return Convert.ToBase64String(Encoding.UTF8.GetBytes(json));
     }
 

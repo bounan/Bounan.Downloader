@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Text;
 using Bounan.Downloader.Worker.Clients;
 using NUnit.Framework;
@@ -6,7 +6,7 @@ using NUnit.Framework;
 namespace Bounan.Downloader.Worker.Tests.Clients;
 
 [TestFixture]
-public class ShikimoriClientTests
+internal sealed class ShikimoriClientTests
 {
     [Test]
     public async Task GetTitleAsync_ReturnsRussian_WhenRussianPresent()
@@ -36,7 +36,7 @@ public class ShikimoriClientTests
         var factory = new FakeHttpClientFactory(httpClient);
 
         var sut = new ShikimoriClient(factory);
-        var title = await sut.GetTitleAsync(1, CancellationToken.None);
+        string title = await sut.GetTitleAsync(1, CancellationToken.None);
 
         Assert.That(title, Is.EqualTo("Ковбой Бибоп"));
     }
@@ -69,7 +69,7 @@ public class ShikimoriClientTests
         var factory = new FakeHttpClientFactory(httpClient);
 
         var sut = new ShikimoriClient(factory);
-        var title = await sut.GetTitleAsync(1, CancellationToken.None);
+        string title = await sut.GetTitleAsync(1, CancellationToken.None);
 
         Assert.That(title, Is.EqualTo("Cowboy Bebop"));
     }
@@ -143,9 +143,13 @@ public class ShikimoriClientTests
         Assert.ThrowsAsync<HttpRequestException>(async () => await sut.GetTitleAsync(21, CancellationToken.None));
     }
 
-    private sealed class FakeHttpClientFactory(HttpClient client) : IHttpClientFactory
+    private sealed class FakeHttpClientFactory(HttpClient client)
+        : IHttpClientFactory
     {
-        public HttpClient CreateClient(string name) => client;
+        public HttpClient CreateClient(string name)
+        {
+            return client;
+        }
     }
 
     private sealed class TestHttpMessageHandler(

@@ -1,4 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using Bounan.Common;
 using Bounan.Downloader.Worker.Configuration;
@@ -15,7 +15,7 @@ namespace Bounan.Downloader.Worker.Services;
 
 internal partial class ThumbnailService : IThumbnailService
 {
-    private readonly ThumbnailOptions _thumbnailOptions;
+    private readonly ThumbnailOptions thumbnailOptions;
 
     public ThumbnailService(
         ILogger<ThumbnailService> logger,
@@ -27,8 +27,8 @@ internal partial class ThumbnailService : IThumbnailService
         HttpClientFactory = httpClientFactory;
         ShikimoriClient = shikimoriClient;
 
-        _thumbnailOptions = thumbnailOptions.Value;
-        ArgumentException.ThrowIfNullOrWhiteSpace(_thumbnailOptions.BotId);
+        this.thumbnailOptions = thumbnailOptions.Value;
+        ArgumentException.ThrowIfNullOrWhiteSpace(this.thumbnailOptions.BotId);
     }
 
     private ILogger<ThumbnailService> Logger { get; }
@@ -52,11 +52,11 @@ internal partial class ThumbnailService : IThumbnailService
         // Thumbnail size is limited by Telegram
         image.Mutate(ctx => ctx.Resize(320, 180));
 
-        var animeName = await ShikimoriClient.GetTitleAsync(videoKey.MyAnimeListId, cancellationToken);
-        var renamedDub = GetDubName(videoKey.Dub);
+        string animeName = await ShikimoriClient.GetTitleAsync(videoKey.MyAnimeListId, cancellationToken);
+        string renamedDub = GetDubName(videoKey.Dub);
         Log.GotAnimeName(Logger, videoKey, animeName, renamedDub);
 
-        using var thumbnail = CreateWatermark(animeName, renamedDub, videoKey.Episode, _thumbnailOptions.BotId);
+        using var thumbnail = CreateWatermark(animeName, renamedDub, videoKey.Episode, thumbnailOptions.BotId);
         Log.CreatedWatermark(Logger, thumbnail.Width, thumbnail.Height);
 
         thumbnail.Mutate(ctx => ctx.Resize(image.Width, image.Height));
@@ -97,8 +97,15 @@ internal partial class ThumbnailService : IThumbnailService
         {
             DrawBotName(botName, ctx);
             DrawAnimeName(animeName, ctx);
-            if (episode > 0) DrawEpisode(episode, ctx);
-            if (!string.IsNullOrWhiteSpace(dub)) DrawDub(dub, ctx);
+            if (episode > 0)
+            {
+                DrawEpisode(episode, ctx);
+            }
+
+            if (!string.IsNullOrWhiteSpace(dub))
+            {
+                DrawDub(dub, ctx);
+            }
         });
 
         return watermark;

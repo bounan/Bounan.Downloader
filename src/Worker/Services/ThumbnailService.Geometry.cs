@@ -1,7 +1,9 @@
-﻿using SixLabors.ImageSharp;
+using System.Diagnostics.CodeAnalysis;
+using SixLabors.ImageSharp;
 
 namespace Bounan.Downloader.Worker.Services;
 
+[SuppressMessage("StyleCop.CSharp.OrderingRules", "SA1202:Elements should be ordered by access")]
 internal partial class ThumbnailService
 {
     private static class Geometry
@@ -19,21 +21,21 @@ internal partial class ThumbnailService
 
             private static float ExtraWidth => (float)(Math.Sin(Angle) * Height);
 
-            private static PointF TopLeft => new (TmbWidth - BaseWidth, PaddingTop);
+            private static PointF TopLeft => new(TmbWidth - BaseWidth, PaddingTop);
 
-            private static PointF TopRight => new (TmbWidth, PaddingTop);
+            private static PointF TopRight => new(TmbWidth, PaddingTop);
 
-            private static PointF BottomRight => new (TmbWidth, PaddingTop + Height);
+            private static PointF BottomRight => new(TmbWidth, PaddingTop + Height);
 
-            private static PointF BottomLeft => new (TmbWidth - BaseWidth - ExtraWidth, PaddingTop + Height);
+            private static PointF BottomLeft => new(TmbWidth - BaseWidth - ExtraWidth, PaddingTop + Height);
 
             public static PointF[] Polygon => [TopLeft, TopRight, BottomRight, BottomLeft];
 
-            public static RectangleF TextRectangle => new (
+            public static RectangleF TextRectangle => new(
                 TopLeft.X,
                 TopLeft.Y + TextPadding,
-                BaseWidth - TextPadding * 2,
-                Height - TextPadding * 2);
+                BaseWidth - (TextPadding * 2),
+                Height - (TextPadding * 2));
         }
 
         public static class AnimeName
@@ -49,21 +51,21 @@ internal partial class ThumbnailService
 
                 private static float ExtraWidth => (float)(Math.Sin(Angle) * Height);
 
-                public static PointF TopLeft => new ((float)TmbWidth / 2 - (float)BaseWidth / 2, Top);
+                public static PointF TopLeft => new(((float)TmbWidth / 2) - ((float)BaseWidth / 2), Top);
 
-                public static PointF TopRight => new (TopLeft.X + BaseWidth + ExtraWidth, Top);
+                public static PointF TopRight => new(TopLeft.X + BaseWidth + ExtraWidth, Top);
 
-                public static PointF BottomRight => new (TopLeft.X + BaseWidth, Top + Height);
+                public static PointF BottomRight => new(TopLeft.X + BaseWidth, Top + Height);
 
-                public static PointF BottomLeft => new (TopLeft.X - ExtraWidth, Top + Height);
+                public static PointF BottomLeft => new(TopLeft.X - ExtraWidth, Top + Height);
 
                 public static PointF[] Polygon => [TopLeft, TopRight, BottomRight, BottomLeft];
 
-                public static RectangleF TextRectangle => new (
+                public static RectangleF TextRectangle => new(
                     TopLeft.X,
                     TopLeft.Y + TextPadding,
                     BaseWidth,
-                    Height - TextPadding * 2);
+                    Height - (TextPadding * 2));
             }
 
             public static class MediumLeft
@@ -72,14 +74,14 @@ internal partial class ThumbnailService
 
                 private static readonly float ExtraWidth = (float)(Math.Sin(Angle) * Height);
 
-                public static readonly PointF TopLeft = new (Large.TopLeft.X - Between - Width, Top);
+                public static readonly PointF TopLeft = new(Large.TopLeft.X - Between - Width, Top);
 
-                private static readonly PointF TopRight = new (Large.TopLeft.X - Between, Top);
+                private static readonly PointF TopRight = new(Large.TopLeft.X - Between, Top);
 
-                private static readonly PointF BottomRight = new (Large.TopLeft.X - Between - ExtraWidth, Top + Height);
+                private static readonly PointF BottomRight = new(Large.TopLeft.X - Between - ExtraWidth, Top + Height);
 
                 private static readonly PointF BottomLeft =
-                    new (Large.TopLeft.X - Between - Width - ExtraWidth, Top + Height);
+                    new(Large.TopLeft.X - Between - Width - ExtraWidth, Top + Height);
 
                 public static readonly PointF[] Polygon = [TopLeft, TopRight, BottomRight, BottomLeft];
             }
@@ -90,15 +92,15 @@ internal partial class ThumbnailService
 
                 private static readonly float ExtraWidth = (float)(Math.Sin(Angle) * Height);
 
-                private static readonly PointF TopLeft = new (MediumLeft.TopLeft.X - Between - Width, Top);
+                private static readonly PointF TopLeft = new(MediumLeft.TopLeft.X - Between - Width, Top);
 
-                private static readonly PointF TopRight = new (MediumLeft.TopLeft.X - Between, Top);
+                private static readonly PointF TopRight = new(MediumLeft.TopLeft.X - Between, Top);
 
                 private static readonly PointF BottomRight =
-                    new (MediumLeft.TopLeft.X - Between - ExtraWidth, Top + Height);
+                    new(MediumLeft.TopLeft.X - Between - ExtraWidth, Top + Height);
 
                 private static readonly PointF BottomLeft =
-                    new (MediumLeft.TopLeft.X - Between - Width - ExtraWidth, Top + Height);
+                    new(MediumLeft.TopLeft.X - Between - Width - ExtraWidth, Top + Height);
 
                 public static readonly PointF[] Polygon = [TopLeft, TopRight, BottomRight, BottomLeft];
             }
@@ -109,15 +111,15 @@ internal partial class ThumbnailService
 
                 private static readonly float ExtraWidth = (float)(Math.Sin(Angle) * Height);
 
-                private static readonly PointF TopLeft = new (Large.TopRight.X + Between, Top);
+                private static readonly PointF TopLeft = new(Large.TopRight.X + Between, Top);
 
-                public static readonly PointF TopRight = new (Large.TopRight.X + Between + Width, Top);
+                public static readonly PointF TopRight = new(Large.TopRight.X + Between + Width, Top);
 
                 private static readonly PointF BottomRight =
-                    new (Large.TopRight.X + Between + Width - ExtraWidth, Top + Height);
+                    new(Large.TopRight.X + Between + Width - ExtraWidth, Top + Height);
 
                 private static readonly PointF BottomLeft =
-                    new (Large.TopRight.X + Between - ExtraWidth, Top + Height);
+                    new(Large.TopRight.X + Between - ExtraWidth, Top + Height);
 
                 public static readonly PointF[] Polygon = [TopLeft, TopRight, BottomRight, BottomLeft];
             }
@@ -128,15 +130,15 @@ internal partial class ThumbnailService
 
                 private static readonly float ExtraWidth = (float)(Math.Sin(Angle) * Height);
 
-                private static readonly PointF TopLeft = new (MediumRight.TopRight.X + Between, Top);
+                private static readonly PointF TopLeft = new(MediumRight.TopRight.X + Between, Top);
 
-                private static readonly PointF TopRight = new (MediumRight.TopRight.X + Between + Width, Top);
+                private static readonly PointF TopRight = new(MediumRight.TopRight.X + Between + Width, Top);
 
                 private static readonly PointF BottomRight =
-                    new (MediumRight.TopRight.X + Between + Width - ExtraWidth, Top + Height);
+                    new(MediumRight.TopRight.X + Between + Width - ExtraWidth, Top + Height);
 
                 private static readonly PointF BottomLeft =
-                    new (MediumRight.TopRight.X + Between - ExtraWidth, Top + Height);
+                    new(MediumRight.TopRight.X + Between - ExtraWidth, Top + Height);
 
                 public static readonly PointF[] Polygon = [TopLeft, TopRight, BottomRight, BottomLeft];
             }
@@ -149,18 +151,22 @@ internal partial class ThumbnailService
             private const int TextPadding = 15;
 
             private static float ExtraWidth => (float)(Math.Sin(Angle) * Height);
+
             private static PointF TopLeft => AnimeName.Large.BottomLeft;
-            private static PointF TopRight => new (TopLeft.X + BaseWidth + ExtraWidth, TopLeft.Y);
-            private static PointF BottomRight => new (TopLeft.X + BaseWidth, TopLeft.Y + Height);
-            private static PointF BottomLeft => new (TopLeft.X - ExtraWidth, TopLeft.Y + Height);
+
+            private static PointF TopRight => new(TopLeft.X + BaseWidth + ExtraWidth, TopLeft.Y);
+
+            private static PointF BottomRight => new(TopLeft.X + BaseWidth, TopLeft.Y + Height);
+
+            private static PointF BottomLeft => new(TopLeft.X - ExtraWidth, TopLeft.Y + Height);
 
             public static PointF[] Polygon => [TopLeft, TopRight, BottomRight, BottomLeft];
 
-            public static RectangleF TextRectangle => new (
+            public static RectangleF TextRectangle => new(
                 TopLeft.X,
                 TopLeft.Y + TextPadding,
                 BaseWidth,
-                Height - TextPadding * 2);
+                Height - (TextPadding * 2));
         }
 
         public static class Dub
@@ -170,18 +176,22 @@ internal partial class ThumbnailService
             private const int TextPadding = 15;
 
             private static float ExtraWidth => (float)(Math.Sin(Angle) * Height);
+
             private static PointF TopRight => AnimeName.Large.BottomRight;
-            private static PointF BottomRight => new (TopRight.X - ExtraWidth, TopRight.Y + Height);
-            private static PointF BottomLeft => new (TopRight.X - BaseWidth - ExtraWidth, TopRight.Y + Height);
-            private static PointF TopLeft => new (TopRight.X - BaseWidth, TopRight.Y);
+
+            private static PointF BottomRight => new(TopRight.X - ExtraWidth, TopRight.Y + Height);
+
+            private static PointF BottomLeft => new(TopRight.X - BaseWidth - ExtraWidth, TopRight.Y + Height);
+
+            private static PointF TopLeft => new(TopRight.X - BaseWidth, TopRight.Y);
 
             public static PointF[] Polygon => [TopLeft, TopRight, BottomRight, BottomLeft];
 
-            public static RectangleF TextRectangle => new (
+            public static RectangleF TextRectangle => new(
                 TopLeft.X,
                 TopLeft.Y + TextPadding,
                 BaseWidth - ExtraWidth,
-                Height - TextPadding * 2);
+                Height - (TextPadding * 2));
         }
     }
 }

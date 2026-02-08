@@ -21,7 +21,8 @@ internal sealed class DownloaderCdkStack : Stack
 {
     private const string RuntimeConfigParameterPrefix = "/bounan/downloader/runtime-config";
 
-    internal DownloaderCdkStack(Construct scope, string id, IStackProps? props = null) : base(scope, id, props)
+    internal DownloaderCdkStack(Construct scope, string id, IStackProps? props = null)
+        : base(scope, id, props)
     {
         var config = new DownloaderCdkStackConfig(this, "bounan:", "/bounan/downloader/deploy-config/");
 
@@ -42,14 +43,16 @@ internal sealed class DownloaderCdkStack : Stack
         SaveParameter(logGroup, videoRegisteredQueue, config, user);
 
         Out("Config", JsonConvert.SerializeObject(config));
-        Out(
-            "dotenv",
-            $"WORKER_IMAGE_URI={image.ImageUri};\n"
-            + $"AWS_REGION={Region};\n"
-            + $"AWS_ACCESS_KEY_ID={accessKey.Ref};\n"
-            + $"AWS_SECRET_ACCESS_KEY={accessKey.AttrSecretAccessKey};\n"
-            + $"TELEGRAM_API_ID={config.TelegramAppId};\n"
-            + $"TELEGRAM_API_HASH={config.TelegramAppHash};");
+
+        string value = $"""
+                        WORKER_IMAGE_URI={image.ImageUri};
+                        AWS_REGION={Region};
+                        AWS_ACCESS_KEY_ID={accessKey.Ref};
+                        AWS_SECRET_ACCESS_KEY={accessKey.AttrSecretAccessKey};
+                        TELEGRAM_API_ID={config.TelegramAppId};
+                        TELEGRAM_API_HASH={config.TelegramAppHash}
+                        """;
+        Out("dotenv", value);
     }
 
     private DockerImageAsset BuildAndPushWorkerImage(IGrantable user)
@@ -73,14 +76,12 @@ internal sealed class DownloaderCdkStack : Stack
 
     private void GrantPermissionsForLambdas(DownloaderCdkStackConfig config, IGrantable user)
     {
-        var loanApiClientLambda = Function.FromFunctionAttributes(
-            this,
-            "LoanApiFunction",
-            new FunctionAttributes
-            {
-                FunctionArn = config.LoanApiFunctionArn,
-                SkipPermissions = true,
-            });
+        var functionAttributes = new FunctionAttributes
+        {
+            FunctionArn = config.LoanApiFunctionArn,
+            SkipPermissions = true,
+        };
+        var loanApiClientLambda = Function.FromFunctionAttributes(this, "LoanApiFunction", functionAttributes);
         _ = loanApiClientLambda.GrantInvoke(user);
 
         var getAnimeToDownloadLambda = Function.FromFunctionName(
@@ -107,39 +108,42 @@ internal sealed class DownloaderCdkStack : Stack
 
         _ = topic.AddSubscription(new EmailSubscription(config.AlertEmail));
 
-        var metricFilter = logGroup.AddMetricFilter("ErrorMetricFilter", new MetricFilterOptions
+        var metricFilterOptions = new MetricFilterOptions
         {
             FilterPattern = FilterPattern.AnyTerm("[Error]"),
             MetricNamespace = StackName,
             MetricName = "ErrorCount",
             MetricValue = "1",
-        });
+        };
+        var metricFilter = logGroup.AddMetricFilter("ErrorMetricFilter", metricFilterOptions);
 
-        var alarm = new Alarm(this, "LogGroupErrorAlarm", new AlarmProps
+        var alarmProps = new AlarmProps
         {
             Metric = metricFilter.Metric(),
             Threshold = 1,
             EvaluationPeriods = 1,
             TreatMissingData = TreatMissingData.NOT_BREACHING,
-        });
+        };
+        var alarm = new Alarm(this, "LogGroupErrorAlarm", alarmProps);
         alarm.AddAlarmAction(new AlarmActions.SnsAction(topic));
     }
 
     private void SetNoLogsAlarm(DownloaderCdkStackConfig config, LogGroup logGroup)
     {
-        var noLogsMetric = new Metric(new MetricProps
-        {
-            Namespace = "AWS/Logs",
-            MetricName = "IncomingLogEvents",
-            DimensionsMap = new Dictionary<string, string>
+        var noLogsMetric = new Metric(
+            new MetricProps
             {
-                { "LogGroupName", logGroup.LogGroupName },
-            },
-            Statistic = "Sum",
-            Period = Duration.Minutes(2),
-        });
+                Namespace = "AWS/Logs",
+                MetricName = "IncomingLogEvents",
+                DimensionsMap = new Dictionary<string, string>
+                {
+                    { "LogGroupName", logGroup.LogGroupName },
+                },
+                Statistic = "Sum",
+                Period = Duration.Minutes(2),
+            });
 
-        var noLogAlarm = new Alarm(this, "NoLogsAlarm", new AlarmProps
+        var alarmProps = new AlarmProps
         {
             Metric = noLogsMetric,
             Threshold = 0,
@@ -147,7 +151,8 @@ internal sealed class DownloaderCdkStack : Stack
             EvaluationPeriods = 1,
             TreatMissingData = TreatMissingData.BREACHING,
             AlarmDescription = "Alarm if no logs received within 2 minutes",
-        });
+        };
+        var noLogAlarm = new Alarm(this, "NoLogsAlarm", alarmProps);
 
         var topic = new Topic(this, "NoLogAlarmSnsTopic", new TopicProps());
         _ = topic.AddSubscription(new EmailSubscription(config.AlertEmail));
@@ -202,22 +207,21 @@ internal sealed class DownloaderCdkStack : Stack
             },
         };
 
-        var json = JsonConvert.SerializeObject(runtimeConfig, Formatting.Indented);
+        string json = JsonConvert.SerializeObject(runtimeConfig, Formatting.Indented);
 
-        _ = new StringParameter(this, "runtime-config", new StringParameterProps
+        var stringParameterProps = new StringParameterProps
         {
             ParameterName = RuntimeConfigParameterPrefix + "/json",
             StringValue = json,
-        });
+        };
+        _ = new StringParameter(this, "runtime-config", stringParameterProps);
 
-        user.AttachInlinePolicy(new Policy(
-            this,
-            "ParameterPolicy",
-            new PolicyProps
-            {
-                Statements =
-                [
-                    new PolicyStatement(new PolicyStatementProps
+        var policyProps = new PolicyProps
+        {
+            Statements =
+            [
+                new PolicyStatement(
+                    new PolicyStatementProps
                     {
                         Actions =
                         [
@@ -232,8 +236,9 @@ internal sealed class DownloaderCdkStack : Stack
                             $"arn:aws:ssm:{Region}:{Account}:parameter{RuntimeConfigParameterPrefix}/*",
                         ],
                     }),
-                ],
-            }));
+            ],
+        };
+        user.AttachInlinePolicy(new Policy(this, "ParameterPolicy", policyProps));
     }
 
     private void Out(string key, string value)

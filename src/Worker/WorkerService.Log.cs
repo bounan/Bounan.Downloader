@@ -1,4 +1,4 @@
-﻿namespace Bounan.Downloader.Worker;
+namespace Bounan.Downloader.Worker;
 
 public partial class WorkerService
 {

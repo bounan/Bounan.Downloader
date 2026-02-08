@@ -1,4 +1,4 @@
-﻿using Amazon.Lambda;
+using Amazon.Lambda;
 using Amazon.SQS;
 using Bounan.Downloader.Worker.Clients;
 using Bounan.Downloader.Worker.Configuration;

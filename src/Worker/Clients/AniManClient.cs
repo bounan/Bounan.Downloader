@@ -1,14 +1,14 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using Amazon.Lambda;
 using Amazon.Lambda.Model;
 using Bounan.Common;
 using Bounan.Downloader.Worker.Configuration;
 using Bounan.Downloader.Worker.Interfaces;
 using Microsoft.Extensions.Options;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 
 namespace Bounan.Downloader.Worker.Clients;
 
@@ -19,7 +19,7 @@ public sealed partial class AniManClient(
     IAmazonLambda lambdaClient)
     : IAniManClient, IDisposable
 {
-    private readonly SemaphoreSlim _semaphore = new(1, 1);
+    private readonly SemaphoreSlim semaphore = new(1, 1);
 
     private static readonly JsonSerializerOptions JsonSerializerOptions = new()
     {
@@ -36,12 +36,12 @@ public sealed partial class AniManClient(
 
     public void Dispose()
     {
-        _semaphore.Dispose();
+        semaphore.Dispose();
     }
 
     public async Task<DownloaderResponse?> GetNextVideo(CancellationToken cancellationToken)
     {
-        await _semaphore.WaitAsync(cancellationToken);
+        await semaphore.WaitAsync(cancellationToken);
         try
         {
             var request = new InvokeRequest
@@ -57,7 +57,7 @@ public sealed partial class AniManClient(
                 return null;
             }
 
-            var payload = Encoding.UTF8.GetString(response.Payload.ToArray());
+            string payload = Encoding.UTF8.GetString(response.Payload.ToArray());
             return JsonSerializer.Deserialize<DownloaderResponse>(payload, JsonSerializerOptions);
         }
         catch (Exception ex)
@@ -67,13 +67,13 @@ public sealed partial class AniManClient(
         }
         finally
         {
-            _ = _semaphore.Release();
+            _ = semaphore.Release();
         }
     }
 
     public async Task SendResult(DownloaderResultRequest result, CancellationToken cancellationToken)
     {
-        await _semaphore.WaitAsync(cancellationToken);
+        await semaphore.WaitAsync(cancellationToken);
         try
         {
             var request = new InvokeRequest
@@ -95,7 +95,7 @@ public sealed partial class AniManClient(
         }
         finally
         {
-            _ = _semaphore.Release();
+            _ = semaphore.Release();
         }
     }
 }

@@ -1,14 +1,14 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using Amazon.Lambda;
 using Amazon.Lambda.Model;
 using Bounan.Downloader.Worker.Configuration;
 using Bounan.Downloader.Worker.Interfaces;
 using Bounan.Downloader.Worker.Models;
 using Microsoft.Extensions.Options;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 
 namespace Bounan.Downloader.Worker.Clients;
 
@@ -18,7 +18,7 @@ internal sealed class LoanApiClient(
     IAmazonLambda lambdaClient)
     : ILoanApiClient, IDisposable
 {
-    private readonly SemaphoreSlim _semaphore = new(1, 1);
+    private readonly SemaphoreSlim semaphore = new(1, 1);
 
     private static readonly JsonSerializerOptions JsonSerializerOptions = new()
     {
@@ -33,7 +33,7 @@ internal sealed class LoanApiClient(
 
     public void Dispose()
     {
-        _semaphore.Dispose();
+        semaphore.Dispose();
     }
 
     public async Task<GetVideoResponse> GetVideo(
@@ -42,7 +42,7 @@ internal sealed class LoanApiClient(
         int episode,
         CancellationToken cancellationToken)
     {
-        await _semaphore.WaitAsync(cancellationToken);
+        await semaphore.WaitAsync(cancellationToken);
         try
         {
             var request = new InvokeRequest
@@ -56,16 +56,18 @@ internal sealed class LoanApiClient(
 
             var response = await LambdaClient.InvokeAsync(request, cancellationToken);
             if (response.HttpStatusCode != HttpStatusCode.OK)
+            {
                 throw new InvalidOperationException(
                     $"Failed to get video info from LoanApi. HTTP status code: {response.HttpStatusCode}");
+            }
 
-            var payload = Encoding.UTF8.GetString(response.Payload.ToArray());
+            string payload = Encoding.UTF8.GetString(response.Payload.ToArray());
             return JsonSerializer.Deserialize<GetVideoResponse>(payload, JsonSerializerOptions)
                    ?? throw new InvalidOperationException("Failed to deserialize response from LoanApi.");
         }
         finally
         {
-            _ = _semaphore.Release();
+            _ = semaphore.Release();
         }
     }
 }

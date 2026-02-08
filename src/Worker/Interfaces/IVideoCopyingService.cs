@@ -1,4 +1,4 @@
-﻿using Bounan.Common;
+using Bounan.Common;
 
 namespace Bounan.Downloader.Worker.Interfaces;
 

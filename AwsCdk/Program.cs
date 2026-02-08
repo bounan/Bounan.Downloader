@@ -1,4 +1,4 @@
-﻿using Amazon.CDK;
+using Amazon.CDK;
 using Bounan.Downloader.AwsCdk;
 
 var app = new App();

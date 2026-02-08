@@ -1,4 +1,4 @@
-﻿using Amazon.Extensions.Configuration.SystemsManager;
+using Amazon.Extensions.Configuration.SystemsManager;
 using Amazon.SimpleSystemsManagement.Model;
 
 namespace Bounan.Downloader.Worker.Helpers;

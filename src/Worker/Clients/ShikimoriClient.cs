@@ -1,4 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Text;
 using System.Text.Json;
@@ -25,15 +25,14 @@ public class ShikimoriClient(IHttpClientFactory httpClientFactory) : IShikimoriC
                              }
                              """;
 
-        var myAnimeListIdStr = myAnimeListId.ToString(CultureInfo.InvariantCulture);
+        string myAnimeListIdStr = myAnimeListId.ToString(CultureInfo.InvariantCulture);
 
         var payload = new { query, variables = new { id = myAnimeListIdStr } };
 
         using StringContent content = new(
             JsonSerializer.Serialize(payload),
             Encoding.UTF8,
-            "application/json"
-        );
+            "application/json");
 
         using var httpClient = httpClientFactory.CreateClient();
         using var response = await httpClient.PostAsync(Endpoint, content, cancellationToken);
@@ -48,7 +47,9 @@ public class ShikimoriClient(IHttpClientFactory httpClientFactory) : IShikimoriC
         var anime = result?.Data.Animes.Single()
                                ?? throw new InvalidOperationException("Anime not found");
         if (anime.Id != myAnimeListIdStr)
+        {
             throw new InvalidOperationException($"Received wrong anime with id {anime.Id}");
+        }
 
         return string.IsNullOrEmpty(anime.Russian)
             ? anime.Name

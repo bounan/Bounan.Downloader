@@ -1,4 +1,4 @@
-﻿using SixLabors.Fonts;
+using SixLabors.Fonts;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Drawing.Processing;
 using SixLabors.ImageSharp.Processing;
@@ -39,7 +39,7 @@ internal static class ImageContextExtensions
         var size = TextMeasurer.MeasureSize(text, new TextOptions(font));
 
         // Find out how much we need to scale the text to fill the space (up or down)
-        var scalingFactor = Math.Min(layoutArea.Width / size.Width, layoutArea.Height / size.Height);
+        float scalingFactor = Math.Min(layoutArea.Width / size.Width, layoutArea.Height / size.Height);
         if (scalingFactor > 1)
         {
             scalingFactor = 1;
@@ -69,8 +69,8 @@ internal static class ImageContextExtensions
         ArgumentNullException.ThrowIfNull(font);
         ArgumentNullException.ThrowIfNull(text);
 
-        var targetWidth = layoutArea.Width;
-        var targetHeight = layoutArea.Height;
+        float targetWidth = layoutArea.Width;
+        float targetHeight = layoutArea.Height;
         var center = new PointF(layoutArea.Left + (targetWidth / 2), layoutArea.Top + (targetHeight / 2));
 
         const float targetMinHeight = 10;
@@ -82,19 +82,18 @@ internal static class ImageContextExtensions
 
         const float multiplier = 0.1f;
 
-        var scaleFactor = (scaledFont.Size * multiplier);
-        var trapCount = (int)(scaledFont.Size / multiplier);
+        float scaleFactor = scaledFont.Size * multiplier;
+        int trapCount = (int)(scaledFont.Size / multiplier);
         if (trapCount < 10)
         {
             trapCount = 10;
         }
 
-        var isTooSmall = false;
+        bool isTooSmall = false;
 
         while ((fontRectangle.Height > targetHeight
                 || fontRectangle.Height < targetMinHeight
-                || fontRectangle.Width > targetWidth
-               ) && trapCount > 0)
+                || fontRectangle.Width > targetWidth) && trapCount > 0)
         {
             if (fontRectangle.Height > targetHeight)
             {

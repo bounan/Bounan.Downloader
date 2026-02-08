@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using JetBrains.Annotations;
 
 namespace Bounan.Downloader.Worker.Configuration;
@@ -8,14 +8,14 @@ public record ProcessingOptions : IOptions
     public static string SectionName => "Processing";
 
     /// <summary>
-    /// Timeout in seconds for each video.
+    /// Gets timeout in seconds for each video.
     /// </summary>
     [Required]
     [Range(30, int.MaxValue, ErrorMessage = "TimeoutSeconds must be greater than 30.")]
     public int TimeoutSeconds { get; [UsedImplicitly] init; } = 6 * 60;
 
     /// <summary>
-    /// Use the lowest quality available.
+    /// Gets a value indicating whether use the lowest quality available.
     /// For debugging purposes only.
     /// </summary>
     public bool UseLowestQuality { get; [UsedImplicitly] init; }

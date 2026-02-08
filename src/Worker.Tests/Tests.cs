@@ -1,9 +1,9 @@
-﻿using NUnit.Framework;
+using NUnit.Framework;
 
 namespace Bounan.Downloader.Worker.Tests;
 
 [TestFixture]
-public class Tests
+internal sealed class Tests
 {
     [Test]
     public void Test1()

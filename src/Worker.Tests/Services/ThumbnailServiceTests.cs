@@ -1,4 +1,5 @@
-﻿using System.Net;
+using System.Diagnostics.CodeAnalysis;
+using System.Net;
 using Bounan.Common;
 using Bounan.Downloader.Worker.Configuration;
 using Bounan.Downloader.Worker.Helpers;
@@ -14,7 +15,8 @@ using SixLabors.ImageSharp.PixelFormats;
 
 namespace Bounan.Downloader.Worker.Tests.Services;
 
-public class ThumbnailServiceTests
+[SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "Not required for tests")]
+internal sealed class ThumbnailServiceTests
 {
     [Test]
     public void GetThumbnailPngStreamAsync_OriginalThumbnailUrlIsNull_ThrowsArgumentNullException()
@@ -68,7 +70,7 @@ public class ThumbnailServiceTests
         int episode)
     {
         // Arrange
-        var baseImageBytes = await File.ReadAllBytesAsync("Assets/thumbnail.jpg");
+        byte[] baseImageBytes = await File.ReadAllBytesAsync("Assets/thumbnail.jpg");
 
         var httpMessageHandlerMock = new Mock<HttpMessageHandler>();
         httpMessageHandlerMock
@@ -80,7 +82,8 @@ public class ThumbnailServiceTests
             .ReturnsAsync(
                 new HttpResponseMessage
                 {
-                    StatusCode = HttpStatusCode.OK, Content = new ByteArrayContent(baseImageBytes),
+                    StatusCode = HttpStatusCode.OK,
+                    Content = new ByteArrayContent(baseImageBytes),
                 });
 
         var httpClientFactory = new Mock<IHttpClientFactory>();
@@ -106,16 +109,16 @@ public class ThumbnailServiceTests
             CancellationToken.None);
 
         // Assert
-        using var image = Image.Load<Rgba32>(stream);
+        using var image = await Image.LoadAsync<Rgba32>(stream);
         await image.SaveAsPngAsync($"../../../Out/output{testId}.jpg");
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(image.Width, Is.EqualTo(320));
             Assert.That(image.Height, Is.EqualTo(180));
-        });
+        }
 
-        var load = Image.Load<Rgba32>($"Assets/sample{testId}.jpg");
-        var mse = ComputeMse(image, load);
+        var load = await Image.LoadAsync<Rgba32>($"Assets/sample{testId}.jpg");
+        double mse = ComputeMse(image, load);
         Assert.That(mse, Is.LessThan(1), "MSE is too high");
     }
 
@@ -125,9 +128,9 @@ public class ThumbnailServiceTests
 
         // sum squared error over all channels
         double totalError = 0;
-        for (var y = 0; y < a.Height; y++)
+        for (int y = 0; y < a.Height; y++)
         {
-            for (var x = 0; x < a.Width; x++)
+            for (int x = 0; x < a.Width; x++)
             {
                 var p = a[x, y];
                 var q = b[x, y];
@@ -138,9 +141,12 @@ public class ThumbnailServiceTests
         }
 
         // average per-channel
-        var msePerChannel = totalError / (a.Width * a.Height * 3);
+        double msePerChannel = totalError / (a.Width * a.Height * 3);
         return msePerChannel;
     }
 
-    private static double Square(double v) => v * v;
+    private static double Square(double v)
+    {
+        return v * v;
+    }
 }

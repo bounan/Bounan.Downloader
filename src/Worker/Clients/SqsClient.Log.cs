@@ -1,4 +1,4 @@
-﻿namespace Bounan.Downloader.Worker.Clients;
+namespace Bounan.Downloader.Worker.Clients;
 
 public partial class SqsClient
 {
@@ -6,7 +6,7 @@ public partial class SqsClient
     {
         [LoggerMessage(LogLevel.Debug, "Waiting for a message")]
         public static partial void WaitingForMessage(ILogger logger);
-        
+
         [LoggerMessage(LogLevel.Debug, "Received messages: {MessageCount}")]
         public static partial void ReceivedMessages(ILogger logger, int messageCount);
 

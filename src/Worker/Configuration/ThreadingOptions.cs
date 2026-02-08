@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using JetBrains.Annotations;
 
 namespace Bounan.Downloader.Worker.Configuration;
@@ -8,7 +8,7 @@ public record ThreadingOptions : IOptions
     public static string SectionName => "Threading";
 
     /// <summary>
-    /// Number of threads to process in parallel.
+    /// Gets number of threads to process in parallel.
     /// </summary>
     [Required]
     [Range(1, 2)]

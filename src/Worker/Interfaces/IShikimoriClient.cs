@@ -1,4 +1,4 @@
-﻿namespace Bounan.Downloader.Worker.Interfaces;
+namespace Bounan.Downloader.Worker.Interfaces;
 
 public interface IShikimoriClient
 {

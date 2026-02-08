@@ -1,4 +1,4 @@
-﻿using Amazon.CDK;
+using Amazon.CDK;
 using Amazon.CDK.AWS.SSM;
 using Microsoft.Extensions.Configuration;
 
@@ -50,13 +50,13 @@ internal sealed class DownloaderCdkStackConfig
 
     private static string GetCdkValue(string cdkPrefix, string key, IConfigurationRoot localConfig)
     {
-        var localValue = localConfig.GetValue<string>(key);
+        string? localValue = localConfig.GetValue<string>(key);
         return localValue is { Length: > 0 } ? localValue : Fn.ImportValue(cdkPrefix + key);
     }
 
     private static string GetSsmValue(Stack stack, string key, string ssmPrefix, IConfigurationRoot localConfig)
     {
-        var localValue = localConfig.GetValue<string>(key);
+        string? localValue = localConfig.GetValue<string>(key);
         return localValue is { Length: > 0 }
             ? localValue
             : StringParameter.ValueForStringParameter(stack, ssmPrefix + key);
