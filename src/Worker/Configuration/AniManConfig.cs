@@ -1,4 +1,6 @@
-﻿namespace Bounan.Downloader.Worker.Configuration;
+﻿using JetBrains.Annotations;
+
+namespace Bounan.Downloader.Worker.Configuration;
 
 public record AniManConfig
 {
@@ -7,10 +9,10 @@ public record AniManConfig
     /// <summary>
     /// Name of the Lambda function to get the next video to download.
     /// </summary>
-    public required string GetVideoToDownloadLambdaFunctionName { get; init; }
+    public required string GetVideoToDownloadLambdaFunctionName { get; [UsedImplicitly] init; }
 
     /// <summary>
     /// Name of the Lambda function to update the status of the video.
     /// </summary>
-    public required string UpdateVideoStatusLambdaFunctionName { get; init; }
+    public required string UpdateVideoStatusLambdaFunctionName { get; [UsedImplicitly] init; }
 }

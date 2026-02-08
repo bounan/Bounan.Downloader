@@ -42,7 +42,7 @@ public partial class WorkerService(
         while (!stoppingToken.IsCancellationRequested)
         {
             await SqsClient.WaitForMessageAsync(stoppingToken);
-            semaphore.Release(_processingConfig.Threads);
+            _ = semaphore.Release(_processingConfig.Threads);
         }
     }
 

@@ -1,4 +1,6 @@
-﻿namespace Bounan.Downloader.Worker.Configuration;
+﻿using JetBrains.Annotations;
+
+namespace Bounan.Downloader.Worker.Configuration;
 
 public record ProcessingConfig
 {
@@ -7,16 +9,16 @@ public record ProcessingConfig
     /// <summary>
     /// Timeout in seconds for each video.
     /// </summary>
-    public int TimeoutSeconds { get; init; } = 6 * 60;
+    public int TimeoutSeconds { get; [UsedImplicitly] init; } = 6 * 60;
 
     /// <summary>
     /// Use the lowest quality available.
     /// For debugging purposes only.
     /// </summary>
-    public bool UseLowestQuality { get; init; }
+    public bool UseLowestQuality { get; [UsedImplicitly] init; }
 
     /// <summary>
     /// Number of threads to process in parallel.
     /// </summary>
-    public int Threads { get; init; } = 1;
+    public int Threads { get; [UsedImplicitly] init; } = 1;
 }

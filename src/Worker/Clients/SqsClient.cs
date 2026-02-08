@@ -109,7 +109,7 @@ public partial class SqsClient : ISqsClient, IDisposable
         }
         finally
         {
-            _semaphore.Release();
+            _ = _semaphore.Release();
         }
     }
 }

@@ -68,7 +68,7 @@ public class ThumbnailServiceTests
         int episode)
     {
         // Arrange
-        byte[] baseImageBytes = await File.ReadAllBytesAsync("Assets/thumbnail.jpg");
+        var baseImageBytes = await File.ReadAllBytesAsync("Assets/thumbnail.jpg");
 
         var httpMessageHandlerMock = new Mock<HttpMessageHandler>();
         httpMessageHandlerMock
@@ -114,8 +114,8 @@ public class ThumbnailServiceTests
             Assert.That(image.Height, Is.EqualTo(180));
         });
 
-        Image<Rgba32> load = Image.Load<Rgba32>($"Assets/sample{testId}.jpg");
-        double mse = ComputeMse(image, load);
+        var load = Image.Load<Rgba32>($"Assets/sample{testId}.jpg");
+        var mse = ComputeMse(image, load);
         Assert.That(mse, Is.LessThan(1), "MSE is too high");
     }
 
@@ -125,9 +125,9 @@ public class ThumbnailServiceTests
 
         // sum squared error over all channels
         double totalError = 0;
-        for (int y = 0; y < a.Height; y++)
+        for (var y = 0; y < a.Height; y++)
         {
-            for (int x = 0; x < a.Width; x++)
+            for (var x = 0; x < a.Width; x++)
             {
                 var p = a[x, y];
                 var q = b[x, y];
@@ -138,7 +138,7 @@ public class ThumbnailServiceTests
         }
 
         // average per-channel
-        double msePerChannel = totalError / (a.Width * a.Height * 3);
+        var msePerChannel = totalError / (a.Width * a.Height * 3);
         return msePerChannel;
     }
 

@@ -52,18 +52,18 @@ internal sealed class LoanApiClient(
                     _jsonSerializerSettings),
             };
 
-            InvokeResponse response = await LambdaClient.InvokeAsync(request, cancellationToken);
+            var response = await LambdaClient.InvokeAsync(request, cancellationToken);
             if (response.HttpStatusCode != HttpStatusCode.OK)
                 throw new InvalidOperationException(
                     $"Failed to get video info from LoanApi. HTTP status code: {response.HttpStatusCode}");
 
-            string payload = Encoding.UTF8.GetString(response.Payload.ToArray());
+            var payload = Encoding.UTF8.GetString(response.Payload.ToArray());
             return JsonConvert.DeserializeObject<GetVideoResponse>(payload, _jsonSerializerSettings)
                    ?? throw new InvalidOperationException("Failed to deserialize response from LoanApi.");
         }
         finally
         {
-            _semaphore.Release();
+            _ = _semaphore.Release();
         }
     }
 }

@@ -1,14 +1,13 @@
 ﻿using NUnit.Framework;
 
-namespace Bounan.Downloader.Worker.Tests
+namespace Bounan.Downloader.Worker.Tests;
+
+[TestFixture]
+public class Tests
 {
-    [TestFixture]
-    public class Tests
+    [Test]
+    public void Test1()
     {
-        [Test]
-        public void Test1()
-        {
-            Assert.Pass();
-        }
+        Assert.Pass();
     }
 }

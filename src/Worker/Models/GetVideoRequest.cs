@@ -1,3 +1,5 @@
+using JetBrains.Annotations;
+
 namespace Bounan.Downloader.Worker.Models;
 
-public record GetVideoRequest(int MyAnimeListId, string Dub, int Episode);
+public record GetVideoRequest([UsedImplicitly] int MyAnimeListId, string Dub, int Episode);

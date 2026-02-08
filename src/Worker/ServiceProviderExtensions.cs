@@ -15,34 +15,38 @@ public static class ServiceProviderExtensions
         ArgumentNullException.ThrowIfNull(services);
         ArgumentNullException.ThrowIfNull(configuration);
 
-        services.Configure<AniManConfig>(configuration.GetSection(AniManConfig.SectionName));
-        services.Configure<SqsConfig>(configuration.GetSection(SqsConfig.SectionName));
-        services.Configure<ProcessingConfig>(configuration.GetSection(ProcessingConfig.SectionName));
-        services.Configure<ThumbnailConfig>(configuration.GetSection(ThumbnailConfig.SectionName));
-        services.Configure<LoanApiConfig>(configuration.GetSection(LoanApiConfig.SectionName));
+        _ = services
+            .Configure<AniManConfig>(configuration.GetSection(AniManConfig.SectionName))
+            .Configure<SqsConfig>(configuration.GetSection(SqsConfig.SectionName))
+            .Configure<ProcessingConfig>(configuration.GetSection(ProcessingConfig.SectionName))
+            .Configure<ThumbnailConfig>(configuration.GetSection(ThumbnailConfig.SectionName))
+            .Configure<LoanApiConfig>(configuration.GetSection(LoanApiConfig.SectionName));
 
-        services.AddLogging(logging =>
+        _ = services.AddLogging(logging =>
         {
-            logging.ClearProviders();
-            logging.AddConfiguration(configuration.GetSection("Logging"));
-            logging.AddConsole();
-            logging.AddAWSProvider(configuration.GetAWSLoggingConfigSection());
+            _ = logging
+                .ClearProviders()
+                .AddConfiguration(configuration.GetSection("Logging"))
+                .AddConsole()
+                .AddAWSProvider(configuration.GetAWSLoggingConfigSection());
         });
 
-        services.AddHttpClient();
+        _ = services.AddHttpClient();
 
         var awsOptions = configuration.GetAWSOptions();
-        services.AddSingleton<IAmazonLambda>(_ => awsOptions.CreateServiceClient<IAmazonLambda>());
-        services.AddSingleton<IAmazonSQS>(_ => awsOptions.CreateServiceClient<IAmazonSQS>());
+        _ = services
+            .AddSingleton<IAmazonLambda>(_ => awsOptions.CreateServiceClient<IAmazonLambda>())
+            .AddSingleton<IAmazonSQS>(_ => awsOptions.CreateServiceClient<IAmazonSQS>());
 
-        services.AddSingleton<IAniManClient, AniManClient>();
-        services.AddSingleton<ILoanApiClient, LoanApiClient>();
-        services.AddSingleton<IShikimoriClient, ShikimoriClient>();
-        services.AddSingleton<ISqsClient, SqsClient>();
-        services.AddSingleton<IVideoCopyingService, VideoCopyingService>();
-        services.AddSingleton<IThumbnailService, ThumbnailService>();
+        _ = services
+            .AddSingleton<IAniManClient, AniManClient>()
+            .AddSingleton<ILoanApiClient, LoanApiClient>()
+            .AddSingleton<IShikimoriClient, ShikimoriClient>()
+            .AddSingleton<ISqsClient, SqsClient>()
+            .AddSingleton<IVideoCopyingService, VideoCopyingService>()
+            .AddSingleton<IThumbnailService, ThumbnailService>();
 
-        services.AddHostedService<WorkerService>();
+        _ = services.AddHostedService<WorkerService>();
 
         return services;
     }

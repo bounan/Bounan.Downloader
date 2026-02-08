@@ -48,14 +48,14 @@ public sealed partial class AniManClient(
                 InvocationType = InvocationType.RequestResponse,
             };
 
-            InvokeResponse response = await LambdaClient.InvokeAsync(request, cancellationToken);
+            var response = await LambdaClient.InvokeAsync(request, cancellationToken);
             if (response.HttpStatusCode != HttpStatusCode.OK)
             {
                 Log.FailedToGetVideoInfo(Logger, response.HttpStatusCode);
                 return null;
             }
 
-            string payload = Encoding.UTF8.GetString(response.Payload.ToArray());
+            var payload = Encoding.UTF8.GetString(response.Payload.ToArray());
             return JsonConvert.DeserializeObject<DownloaderResponse>(payload, _jsonSerializerSettings);
         }
         catch (Exception ex)
@@ -65,7 +65,7 @@ public sealed partial class AniManClient(
         }
         finally
         {
-            _semaphore.Release();
+            _ = _semaphore.Release();
         }
     }
 
@@ -81,7 +81,7 @@ public sealed partial class AniManClient(
                 Payload = JsonConvert.SerializeObject(result, _jsonSerializerSettings),
             };
 
-            InvokeResponse response = await LambdaClient.InvokeAsync(request, cancellationToken);
+            var response = await LambdaClient.InvokeAsync(request, cancellationToken);
             if (response.HttpStatusCode != HttpStatusCode.OK)
             {
                 Log.FailedToSendResult(Logger, response.HttpStatusCode);
@@ -93,7 +93,7 @@ public sealed partial class AniManClient(
         }
         finally
         {
-            _semaphore.Release();
+            _ = _semaphore.Release();
         }
     }
 }

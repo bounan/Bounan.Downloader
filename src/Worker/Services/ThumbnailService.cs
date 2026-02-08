@@ -52,8 +52,8 @@ internal partial class ThumbnailService : IThumbnailService
         // Thumbnail size is limited by Telegram
         image.Mutate(ctx => ctx.Resize(320, 180));
 
-        string animeName = await ShikimoriClient.GetTitleAsync(videoKey.MyAnimeListId, cancellationToken);
-        string renamedDub = GetDubName(videoKey.Dub);
+        var animeName = await ShikimoriClient.GetTitleAsync(videoKey.MyAnimeListId, cancellationToken);
+        var renamedDub = GetDubName(videoKey.Dub);
         Log.GotAnimeName(Logger, videoKey, animeName, renamedDub);
 
         using var thumbnail = CreateWatermark(animeName, renamedDub, videoKey.Episode, _thumbnailConfig.BotId);
@@ -82,7 +82,7 @@ internal partial class ThumbnailService : IThumbnailService
     {
         using var httpClient = HttpClientFactory.CreateClient();
         using var response = await httpClient.GetAsync(originalThumbnailUrl, cancellationToken);
-        response.EnsureSuccessStatusCode();
+        _ = response.EnsureSuccessStatusCode();
 
         await using var originalImageStream = await response.Content.ReadAsStreamAsync(cancellationToken);
         var image = await Image.LoadAsync(originalImageStream, cancellationToken);
@@ -106,7 +106,7 @@ internal partial class ThumbnailService : IThumbnailService
 
     private static void DrawBotName(string botName, IImageProcessingContext ctx)
     {
-        ctx
+        _ = ctx
             .FillPolygon(Rgba32.ParseHex("#FFFFFFE6"), Geometry.BotName.Polygon)
             .ApplyScalingWaterMarkSimple(
                 SystemFonts.CreateFont("Roboto Light", 90),
@@ -117,7 +117,7 @@ internal partial class ThumbnailService : IThumbnailService
 
     private static void DrawAnimeName(string animeName, IImageProcessingContext ctx)
     {
-        ctx
+        _ = ctx
             .FillPolygon(Rgba32.ParseHex("#FF6666B3"), Geometry.AnimeName.SmallLeft.Polygon)
             .FillPolygon(Rgba32.ParseHex("#FF6666E6"), Geometry.AnimeName.MediumLeft.Polygon)
             .FillPolygon(Rgba32.ParseHex("#FF6666F2"), Geometry.AnimeName.Large.Polygon)
@@ -132,7 +132,7 @@ internal partial class ThumbnailService : IThumbnailService
 
     private static void DrawEpisode(int episode, IImageProcessingContext ctx)
     {
-        ctx
+        _ = ctx
             .FillPolygon(Rgba32.ParseHex("#FFFFFFE6"), Geometry.Episode.Polygon)
             .ApplyScalingWaterMarkSimple(
                 SystemFonts.CreateFont("Roboto Medium", 90),
@@ -143,7 +143,7 @@ internal partial class ThumbnailService : IThumbnailService
 
     private static void DrawDub(string dub, IImageProcessingContext ctx)
     {
-        ctx
+        _ = ctx
             .FillPolygon(Rgba32.ParseHex("#FFFFFFE6"), Geometry.Dub.Polygon)
             .ApplyScalingWaterMarkWordWrap(
                 SystemFonts.CreateFont("Roboto Medium", 90),

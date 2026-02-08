@@ -50,13 +50,13 @@ internal sealed class DownloaderCdkStackConfig
 
     private static string GetCdkValue(string cdkPrefix, string key, IConfigurationRoot localConfig)
     {
-        string? localValue = localConfig.GetValue<string>(key);
+        var localValue = localConfig.GetValue<string>(key);
         return localValue is { Length: > 0 } ? localValue : Fn.ImportValue(cdkPrefix + key);
     }
 
     private static string GetSsmValue(Stack stack, string key, string ssmPrefix, IConfigurationRoot localConfig)
     {
-        string? localValue = localConfig.GetValue<string>(key);
+        var localValue = localConfig.GetValue<string>(key);
         return localValue is { Length: > 0 }
             ? localValue
             : StringParameter.ValueForStringParameter(stack, ssmPrefix + key);

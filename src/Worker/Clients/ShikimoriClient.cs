@@ -8,9 +8,9 @@ namespace Bounan.Downloader.Worker.Clients;
 
 public class ShikimoriClient(IHttpClientFactory httpClientFactory) : IShikimoriClient
 {
-    private static readonly Uri s_endpoint = new("https://shikimori.one/api/graphql");
+    private static readonly Uri Endpoint = new("https://shikimori.one/api/graphql");
 
-    private static readonly JsonSerializerOptions s_jsonSerializerOptions =
+    private static readonly JsonSerializerOptions JsonSerializerOptions =
         new() { PropertyNameCaseInsensitive = true };
 
     public async Task<string> GetTitleAsync(int myAnimeListId, CancellationToken cancellationToken)
@@ -25,7 +25,7 @@ public class ShikimoriClient(IHttpClientFactory httpClientFactory) : IShikimoriC
                              }
                              """;
 
-        string myAnimeListIdStr = myAnimeListId.ToString(CultureInfo.InvariantCulture);
+        var myAnimeListIdStr = myAnimeListId.ToString(CultureInfo.InvariantCulture);
 
         var payload = new { query, variables = new { id = myAnimeListIdStr } };
 
@@ -35,17 +35,17 @@ public class ShikimoriClient(IHttpClientFactory httpClientFactory) : IShikimoriC
             "application/json"
         );
 
-        using HttpClient httpClient = httpClientFactory.CreateClient();
-        using HttpResponseMessage response = await httpClient.PostAsync(s_endpoint, content, cancellationToken);
-        response.EnsureSuccessStatusCode();
+        using var httpClient = httpClientFactory.CreateClient();
+        using var response = await httpClient.PostAsync(Endpoint, content, cancellationToken);
+        _ = response.EnsureSuccessStatusCode();
 
-        await using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken);
-        ShikimoriResponse? result = await JsonSerializer.DeserializeAsync<ShikimoriResponse>(
+        await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken);
+        var result = await JsonSerializer.DeserializeAsync<ShikimoriResponse>(
             stream,
-            s_jsonSerializerOptions,
+            JsonSerializerOptions,
             cancellationToken);
 
-        ShikimoriAnime anime = result?.Data.Animes.Single()
+        var anime = result?.Data.Animes.Single()
                                ?? throw new InvalidOperationException("Anime not found");
         if (anime.Id != myAnimeListIdStr)
             throw new InvalidOperationException($"Received wrong anime with id {anime.Id}");

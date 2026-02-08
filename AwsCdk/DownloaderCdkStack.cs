@@ -35,7 +35,7 @@ internal sealed class DownloaderCdkStack : Stack
         var logGroup = CreateLogGroup();
         SetErrorAlarm(config, logGroup);
         SetNoLogsAlarm(config, logGroup);
-        logGroup.GrantWrite(user);
+        _ = logGroup.GrantWrite(user);
 
         var accessKey = new CfnAccessKey(this, "AccessKey", new CfnAccessKeyProps { UserName = user.UserName });
 
@@ -55,7 +55,7 @@ internal sealed class DownloaderCdkStack : Stack
     private DockerImageAsset BuildAndPushWorkerImage(IGrantable user)
     {
         var dockerImage = new DockerImageAsset(this, "WorkerImage", new DockerImageAssetProps { Directory = "." });
-        dockerImage.Repository.GrantPull(user);
+        _ = dockerImage.Repository.GrantPull(user);
 
         return dockerImage;
     }
@@ -64,9 +64,9 @@ internal sealed class DownloaderCdkStack : Stack
     {
         var newEpisodesTopic = Topic.FromTopicArn(this, "VideoRegisteredTopic", config.VideoRegisteredTopicArn);
         var newEpisodesQueue = new Queue(this, "VideoRegisteredQueue");
-        newEpisodesTopic.AddSubscription(new SqsSubscription(newEpisodesQueue));
+        _ = newEpisodesTopic.AddSubscription(new SqsSubscription(newEpisodesQueue));
 
-        newEpisodesQueue.GrantConsumeMessages(user);
+        _ = newEpisodesQueue.GrantConsumeMessages(user);
 
         return newEpisodesQueue;
     }
@@ -81,19 +81,19 @@ internal sealed class DownloaderCdkStack : Stack
                 FunctionArn = config.LoanApiFunctionArn,
                 SkipPermissions = true,
             });
-        loanApiClientLambda.GrantInvoke(user);
+        _ = loanApiClientLambda.GrantInvoke(user);
 
         var getAnimeToDownloadLambda = Function.FromFunctionName(
             this,
             "GetAnime",
             config.GetVideoToDownloadLambdaName);
-        getAnimeToDownloadLambda.GrantInvoke(user);
+        _ = getAnimeToDownloadLambda.GrantInvoke(user);
 
         var updateVideoStatusLambda = Function.FromFunctionName(
             this,
             "UpdateVideoStatus",
             config.UpdateVideoStatusLambdaName);
-        updateVideoStatusLambda.GrantInvoke(user);
+        _ = updateVideoStatusLambda.GrantInvoke(user);
     }
 
     private LogGroup CreateLogGroup()
@@ -105,7 +105,7 @@ internal sealed class DownloaderCdkStack : Stack
     {
         var topic = new Topic(this, "LogGroupAlarmSnsTopic", new TopicProps());
 
-        topic.AddSubscription(new EmailSubscription(config.AlertEmail));
+        _ = topic.AddSubscription(new EmailSubscription(config.AlertEmail));
 
         var metricFilter = logGroup.AddMetricFilter("ErrorMetricFilter", new MetricFilterOptions
         {
@@ -150,7 +150,7 @@ internal sealed class DownloaderCdkStack : Stack
         });
 
         var topic = new Topic(this, "NoLogAlarmSnsTopic", new TopicProps());
-        topic.AddSubscription(new EmailSubscription(config.AlertEmail));
+        _ = topic.AddSubscription(new EmailSubscription(config.AlertEmail));
         noLogAlarm.AddAlarmAction(new AlarmActions.SnsAction(topic));
     }
 
@@ -199,7 +199,7 @@ internal sealed class DownloaderCdkStack : Stack
             },
         };
 
-        string json = JsonConvert.SerializeObject(runtimeConfig, Formatting.Indented);
+        var json = JsonConvert.SerializeObject(runtimeConfig, Formatting.Indented);
 
         _ = new StringParameter(this, "runtime-config", new StringParameterProps
         {

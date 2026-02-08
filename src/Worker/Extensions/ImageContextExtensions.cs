@@ -19,7 +19,7 @@ internal static class ImageContextExtensions
         var rightTop = new PointF(leftTop.X + width, leftTop.Y);
         var rightBottom = new PointF(leftTop.X + width - (float)(height * Math.Sin(angle)), leftTop.Y + height);
 
-        ctx.FillPolygon(color, leftTop, rightTop, rightBottom, leftBottom);
+        ctx = ctx.FillPolygon(color, leftTop, rightTop, rightBottom, leftBottom);
 
         return ctx;
     }
@@ -36,17 +36,17 @@ internal static class ImageContextExtensions
         ArgumentNullException.ThrowIfNull(text);
 
         // Measure the text size
-        FontRectangle size = TextMeasurer.MeasureSize(text, new TextOptions(font));
+        var size = TextMeasurer.MeasureSize(text, new TextOptions(font));
 
         // Find out how much we need to scale the text to fill the space (up or down)
-        float scalingFactor = Math.Min(layoutArea.Width / size.Width, layoutArea.Height / size.Height);
+        var scalingFactor = Math.Min(layoutArea.Width / size.Width, layoutArea.Height / size.Height);
         if (scalingFactor > 1)
         {
             scalingFactor = 1;
         }
 
         // Create a new font
-        Font scaledFont = new Font(font, scalingFactor * font.Size);
+        var scaledFont = new Font(font, scalingFactor * font.Size);
 
         var center = new PointF(layoutArea.Left + (layoutArea.Width / 2), layoutArea.Top + (layoutArea.Height / 2));
         var textOptions = new RichTextOptions(scaledFont)
@@ -69,9 +69,9 @@ internal static class ImageContextExtensions
         ArgumentNullException.ThrowIfNull(font);
         ArgumentNullException.ThrowIfNull(text);
 
-        float targetWidth = layoutArea.Width;
-        float targetHeight = layoutArea.Height;
-        PointF center = new PointF(layoutArea.Left + (targetWidth / 2), layoutArea.Top + (targetHeight / 2));
+        var targetWidth = layoutArea.Width;
+        var targetHeight = layoutArea.Height;
+        var center = new PointF(layoutArea.Left + (targetWidth / 2), layoutArea.Top + (targetHeight / 2));
 
         const float targetMinHeight = 10;
 
@@ -82,14 +82,14 @@ internal static class ImageContextExtensions
 
         const float multiplier = 0.1f;
 
-        float scaleFactor = (scaledFont.Size * multiplier);
-        int trapCount = (int)(scaledFont.Size / multiplier);
+        var scaleFactor = (scaledFont.Size * multiplier);
+        var trapCount = (int)(scaledFont.Size / multiplier);
         if (trapCount < 10)
         {
             trapCount = 10;
         }
 
-        bool isTooSmall = false;
+        var isTooSmall = false;
 
         while ((fontRectangle.Height > targetHeight
                 || fontRectangle.Height < targetMinHeight
