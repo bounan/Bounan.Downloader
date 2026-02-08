@@ -8,7 +8,7 @@
         "DOTNET_ENVIRONMENT": "Development",
         "AWS_PROFILE": "hra",
         "HLS2TLGRUPLOADER__TELEGRAM__APIURL": "http://localhost:25565",
-        "Processing__Threads": "1"
+        "Threading__Threads": "1"
       }
     },
     "Run locally (prod)": {
@@ -18,7 +18,7 @@
         "DOTNET_ENVIRONMENT": "Development",
         "AWS_PROFILE": "hra_prod",
         "HLS2TLGRUPLOADER__TELEGRAM__APIURL": "http://localhost:25565",
-        "Processing__Threads": "1"
+        "Threading__Threads": "1"
       }
     }
   }

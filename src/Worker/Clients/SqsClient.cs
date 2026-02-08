@@ -20,10 +20,12 @@ public partial class SqsClient : ISqsClient, IDisposable
         ILogger<SqsClient> logger,
         IOptions<SqsConfig> sqsConfig,
         IOptions<ProcessingConfig> processingConfig,
+        IOptions<ThreadingConfig> threadingConfig,
         IAmazonSQS amazonSqs)
     {
         ArgumentNullException.ThrowIfNull(sqsConfig);
         ArgumentNullException.ThrowIfNull(processingConfig);
+        ArgumentNullException.ThrowIfNull(threadingConfig);
 
         Logger = logger;
         AmazonAmazonSqs = amazonSqs;
@@ -36,7 +38,7 @@ public partial class SqsClient : ISqsClient, IDisposable
             WaitTimeSeconds = sqsConfig.Value.PollingIntervalSeconds,
         };
 
-        _semaphore = new SemaphoreSlim(processingConfig.Value.Threads, processingConfig.Value.Threads);
+        _semaphore = new SemaphoreSlim(threadingConfig.Value.Threads, threadingConfig.Value.Threads);
     }
 
     private ILogger<SqsClient> Logger { get; }

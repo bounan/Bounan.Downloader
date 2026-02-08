@@ -16,9 +16,4 @@ public record ProcessingConfig
     /// For debugging purposes only.
     /// </summary>
     public bool UseLowestQuality { get; [UsedImplicitly] init; }
-
-    /// <summary>
-    /// Number of threads to process in parallel.
-    /// </summary>
-    public int Threads { get; [UsedImplicitly] init; } = 1;
 }

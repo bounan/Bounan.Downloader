@@ -187,9 +187,12 @@ internal sealed class DownloaderCdkStack : Stack
             {
                 BotId = config.ThumbnailBotUsername,
             },
-            Processing = new
+            Threading = new
             {
                 Threads = 2,
+            },
+            Processing = new
+            {
                 TimeoutSeconds = 600,
                 UseLowestQuality = false,
             },
