@@ -1,8 +1,12 @@
-﻿namespace Bounan.Downloader.Worker.Configuration;
+﻿using System.ComponentModel.DataAnnotations;
 
-internal record ThumbnailOptions
+namespace Bounan.Downloader.Worker.Configuration;
+
+internal record ThumbnailOptions : IOptions
 {
-    public const string SectionName = "Thumbnail";
+    public static string SectionName => "Thumbnail";
 
+    [Required]
+    [StringLength(40, MinimumLength = 2)]
     public required string BotId { get; init; }
 }

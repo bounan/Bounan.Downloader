@@ -1,14 +1,17 @@
-﻿using JetBrains.Annotations;
+﻿using System.ComponentModel.DataAnnotations;
+using JetBrains.Annotations;
 
 namespace Bounan.Downloader.Worker.Configuration;
 
-public record ProcessingOptions
+public record ProcessingOptions : IOptions
 {
-    public static readonly string SectionName = "Processing";
+    public static string SectionName => "Processing";
 
     /// <summary>
     /// Timeout in seconds for each video.
     /// </summary>
+    [Required]
+    [Range(30, int.MaxValue, ErrorMessage = "TimeoutSeconds must be greater than 30.")]
     public int TimeoutSeconds { get; [UsedImplicitly] init; } = 6 * 60;
 
     /// <summary>

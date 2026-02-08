@@ -16,11 +16,11 @@ public static class ServiceProviderExtensions
         ArgumentNullException.ThrowIfNull(configuration);
 
         _ = services
-            .Configure<AniManOptions>(configuration.GetSection(AniManOptions.SectionName))
-            .Configure<SqsOptions>(configuration.GetSection(SqsOptions.SectionName))
-            .Configure<ProcessingOptions>(configuration.GetSection(ProcessingOptions.SectionName))
-            .Configure<ThumbnailOptions>(configuration.GetSection(ThumbnailOptions.SectionName))
-            .Configure<LoanApiOptions>(configuration.GetSection(LoanApiOptions.SectionName));
+            .AddOptionsExt<AniManOptions>()
+            .AddOptionsExt<SqsOptions>()
+            .AddOptionsExt<ProcessingOptions>()
+            .AddOptionsExt<ThumbnailOptions>()
+            .AddOptionsExt<LoanApiOptions>();
 
         _ = services.AddLogging(logging =>
         {
@@ -47,6 +47,18 @@ public static class ServiceProviderExtensions
             .AddSingleton<IThumbnailService, ThumbnailService>();
 
         _ = services.AddHostedService<WorkerService>();
+
+        return services;
+    }
+
+    private static IServiceCollection AddOptionsExt<T>(this IServiceCollection services)
+        where T : class, IOptions
+    {
+        _ = services
+            .AddOptions<T>()
+            .BindConfiguration(T.SectionName)
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
 
         return services;
     }
