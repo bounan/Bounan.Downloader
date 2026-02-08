@@ -1,6 +1,6 @@
 ﻿namespace Bounan.Downloader.Worker.Configuration;
 
-internal record ThumbnailConfig
+internal record ThumbnailOptions
 {
     public const string SectionName = "Thumbnail";
 

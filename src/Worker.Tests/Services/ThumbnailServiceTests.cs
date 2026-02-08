@@ -22,7 +22,7 @@ public class ThumbnailServiceTests
         // Arrange
         var thumbnailService = new ThumbnailService(
             NullLogger<ThumbnailService>.Instance,
-            Options.Create(new ThumbnailConfig { BotId = "@" }),
+            Options.Create(new ThumbnailOptions { BotId = "@" }),
             Mock.Of<IHttpClientFactory>(),
             Mock.Of<IShikimoriClient>());
 
@@ -40,7 +40,7 @@ public class ThumbnailServiceTests
         // Arrange
         var thumbnailService = new ThumbnailService(
             NullLogger<ThumbnailService>.Instance,
-            Options.Create(new ThumbnailConfig { BotId = "@" }),
+            Options.Create(new ThumbnailOptions { BotId = "@" }),
             Mock.Of<IHttpClientFactory>(),
             Mock.Of<IShikimoriClient>());
 
@@ -95,7 +95,7 @@ public class ThumbnailServiceTests
 
         var thumbnailService = new ThumbnailService(
             NullLogger<ThumbnailService>.Instance,
-            Options.Create(new ThumbnailConfig { BotId = "@aaaaaa_aaaaa_bot" }),
+            Options.Create(new ThumbnailOptions { BotId = "@aaaaaa_aaaaa_bot" }),
             httpClientFactory.Object,
             shikimoriClient.Object);
 

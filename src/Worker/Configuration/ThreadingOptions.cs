@@ -2,7 +2,7 @@
 
 namespace Bounan.Downloader.Worker.Configuration;
 
-public record ThreadingConfig
+public record ThreadingOptions
 {
     public static readonly string SectionName = "Threading";
 

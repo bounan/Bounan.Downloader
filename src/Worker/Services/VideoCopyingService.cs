@@ -14,7 +14,7 @@ namespace Bounan.Downloader.Worker.Services;
 
 internal partial class VideoCopyingService(
     ILogger<VideoCopyingService> logger,
-    IOptions<ProcessingConfig> processingConfig,
+    IOptions<ProcessingOptions> processingConfig,
     IHttpClientFactory httpClientFactory,
     ILoanApiClient loanApiClient,
     IAniManClient aniManClient,
@@ -22,7 +22,7 @@ internal partial class VideoCopyingService(
     IVideoUploadingService videoUploadingService)
     : IVideoCopyingService
 {
-    private readonly ProcessingConfig _processingConfig = processingConfig.Value;
+    private readonly ProcessingOptions _processingOptions = processingConfig.Value;
 
     private static readonly JsonSerializerOptions JsonSerializerOptions = new()
     {
@@ -47,7 +47,7 @@ internal partial class VideoCopyingService(
     {
         Log.ReceivedVideoKey(Logger, videoKey);
         using var innerCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-        innerCts.CancelAfter(_processingConfig.TimeoutSeconds * 1000);
+        innerCts.CancelAfter(_processingOptions.TimeoutSeconds * 1000);
 
         ArgumentNullException.ThrowIfNull(videoKey);
         try
@@ -102,7 +102,7 @@ internal partial class VideoCopyingService(
         var sortedPlaylists = playlists
             .OrderBy(pair => pair.Key.Length)
             .ThenBy(pair => pair.Key);
-        var bestQualityPlaylist = _processingConfig.UseLowestQuality
+        var bestQualityPlaylist = _processingOptions.UseLowestQuality
             ? sortedPlaylists.First().Value
             : sortedPlaylists.Last().Value;
         Log.ProcessingPlaylist(Logger, bestQualityPlaylist);

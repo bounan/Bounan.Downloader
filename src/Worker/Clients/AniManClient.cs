@@ -15,7 +15,7 @@ namespace Bounan.Downloader.Worker.Clients;
 [SuppressMessage("Design", "CA1031:Do not catch general exception types")]
 public sealed partial class AniManClient(
     ILogger<AniManClient> logger,
-    IOptions<AniManConfig> aniManConfig,
+    IOptions<AniManOptions> aniManOptions,
     IAmazonLambda lambdaClient)
     : IAniManClient, IDisposable
 {
@@ -30,7 +30,7 @@ public sealed partial class AniManClient(
 
     private ILogger<AniManClient> Logger { get; } = logger;
 
-    private IOptions<AniManConfig> AniManConfig { get; } = aniManConfig;
+    private IOptions<AniManOptions> AniManOptions { get; } = aniManOptions;
 
     private IAmazonLambda LambdaClient { get; } = lambdaClient;
 
@@ -46,7 +46,7 @@ public sealed partial class AniManClient(
         {
             var request = new InvokeRequest
             {
-                FunctionName = AniManConfig.Value.GetVideoToDownloadLambdaFunctionName,
+                FunctionName = AniManOptions.Value.GetVideoToDownloadLambdaFunctionName,
                 InvocationType = InvocationType.RequestResponse,
             };
 
@@ -78,7 +78,7 @@ public sealed partial class AniManClient(
         {
             var request = new InvokeRequest
             {
-                FunctionName = AniManConfig.Value.UpdateVideoStatusLambdaFunctionName,
+                FunctionName = AniManOptions.Value.UpdateVideoStatusLambdaFunctionName,
                 InvocationType = InvocationType.RequestResponse,
                 Payload = JsonSerializer.Serialize(result, JsonSerializerOptions),
             };

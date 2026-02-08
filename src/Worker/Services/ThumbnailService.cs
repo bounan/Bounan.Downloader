@@ -15,11 +15,11 @@ namespace Bounan.Downloader.Worker.Services;
 
 internal partial class ThumbnailService : IThumbnailService
 {
-    private readonly ThumbnailConfig _thumbnailConfig;
+    private readonly ThumbnailOptions _thumbnailOptions;
 
     public ThumbnailService(
         ILogger<ThumbnailService> logger,
-        IOptions<ThumbnailConfig> thumbnailConfig,
+        IOptions<ThumbnailOptions> thumbnailOptions,
         IHttpClientFactory httpClientFactory,
         IShikimoriClient shikimoriClient)
     {
@@ -27,8 +27,8 @@ internal partial class ThumbnailService : IThumbnailService
         HttpClientFactory = httpClientFactory;
         ShikimoriClient = shikimoriClient;
 
-        _thumbnailConfig = thumbnailConfig.Value;
-        ArgumentException.ThrowIfNullOrWhiteSpace(_thumbnailConfig.BotId);
+        _thumbnailOptions = thumbnailOptions.Value;
+        ArgumentException.ThrowIfNullOrWhiteSpace(_thumbnailOptions.BotId);
     }
 
     private ILogger<ThumbnailService> Logger { get; }
@@ -56,7 +56,7 @@ internal partial class ThumbnailService : IThumbnailService
         var renamedDub = GetDubName(videoKey.Dub);
         Log.GotAnimeName(Logger, videoKey, animeName, renamedDub);
 
-        using var thumbnail = CreateWatermark(animeName, renamedDub, videoKey.Episode, _thumbnailConfig.BotId);
+        using var thumbnail = CreateWatermark(animeName, renamedDub, videoKey.Episode, _thumbnailOptions.BotId);
         Log.CreatedWatermark(Logger, thumbnail.Width, thumbnail.Height);
 
         thumbnail.Mutate(ctx => ctx.Resize(image.Width, image.Height));

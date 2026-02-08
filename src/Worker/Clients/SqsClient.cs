@@ -18,27 +18,27 @@ public partial class SqsClient : ISqsClient, IDisposable
 
     public SqsClient(
         ILogger<SqsClient> logger,
-        IOptions<SqsConfig> sqsConfig,
-        IOptions<ProcessingConfig> processingConfig,
-        IOptions<ThreadingConfig> threadingConfig,
+        IOptions<SqsOptions> sqsOptions,
+        IOptions<ProcessingOptions> processingOptions,
+        IOptions<ThreadingOptions> threadingOptions,
         IAmazonSQS amazonSqs)
     {
-        ArgumentNullException.ThrowIfNull(sqsConfig);
-        ArgumentNullException.ThrowIfNull(processingConfig);
-        ArgumentNullException.ThrowIfNull(threadingConfig);
+        ArgumentNullException.ThrowIfNull(sqsOptions);
+        ArgumentNullException.ThrowIfNull(processingOptions);
+        ArgumentNullException.ThrowIfNull(threadingOptions);
 
         Logger = logger;
         AmazonAmazonSqs = amazonSqs;
 
-        _errorRetryIntervalMs = sqsConfig.Value.ErrorRetryIntervalSeconds * 1000;
+        _errorRetryIntervalMs = sqsOptions.Value.ErrorRetryIntervalSeconds * 1000;
         _receiveMessageRequest = new ReceiveMessageRequest
         {
-            QueueUrl = sqsConfig.Value.NotificationQueueUrl.ToString(),
+            QueueUrl = sqsOptions.Value.NotificationQueueUrl.ToString(),
             MaxNumberOfMessages = 1,
-            WaitTimeSeconds = sqsConfig.Value.PollingIntervalSeconds,
+            WaitTimeSeconds = sqsOptions.Value.PollingIntervalSeconds,
         };
 
-        _semaphore = new SemaphoreSlim(threadingConfig.Value.Threads, threadingConfig.Value.Threads);
+        _semaphore = new SemaphoreSlim(threadingOptions.Value.Threads, threadingOptions.Value.Threads);
     }
 
     private ILogger<SqsClient> Logger { get; }

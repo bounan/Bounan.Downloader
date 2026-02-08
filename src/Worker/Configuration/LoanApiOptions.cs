@@ -2,7 +2,7 @@ using JetBrains.Annotations;
 
 namespace Bounan.Downloader.Worker.Configuration;
 
-public record LoanApiConfig
+public record LoanApiOptions
 {
     public const string SectionName = "LoanApi";
 

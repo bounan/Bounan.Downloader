@@ -14,7 +14,7 @@ namespace Bounan.Downloader.Worker.Clients;
 
 [SuppressMessage("Design", "CA1031:Do not catch general exception types")]
 internal sealed class LoanApiClient(
-    IOptions<LoanApiConfig> loanApiConfig,
+    IOptions<LoanApiOptions> loanApiOptions,
     IAmazonLambda lambdaClient)
     : ILoanApiClient, IDisposable
 {
@@ -27,7 +27,7 @@ internal sealed class LoanApiClient(
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
     };
 
-    private IOptions<LoanApiConfig> LoanApiConfig { get; } = loanApiConfig;
+    private IOptions<LoanApiOptions> LoanApiOptions { get; } = loanApiOptions;
 
     private IAmazonLambda LambdaClient { get; } = lambdaClient;
 
@@ -47,7 +47,7 @@ internal sealed class LoanApiClient(
         {
             var request = new InvokeRequest
             {
-                FunctionName = LoanApiConfig.Value.FunctionArn,
+                FunctionName = LoanApiOptions.Value.FunctionArn,
                 InvocationType = InvocationType.RequestResponse,
                 Payload = JsonSerializer.Serialize(
                     new GetVideoRequest(myAnimeListId, dub, episode),

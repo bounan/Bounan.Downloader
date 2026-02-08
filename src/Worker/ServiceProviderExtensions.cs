@@ -16,11 +16,11 @@ public static class ServiceProviderExtensions
         ArgumentNullException.ThrowIfNull(configuration);
 
         _ = services
-            .Configure<AniManConfig>(configuration.GetSection(AniManConfig.SectionName))
-            .Configure<SqsConfig>(configuration.GetSection(SqsConfig.SectionName))
-            .Configure<ProcessingConfig>(configuration.GetSection(ProcessingConfig.SectionName))
-            .Configure<ThumbnailConfig>(configuration.GetSection(ThumbnailConfig.SectionName))
-            .Configure<LoanApiConfig>(configuration.GetSection(LoanApiConfig.SectionName));
+            .Configure<AniManOptions>(configuration.GetSection(AniManOptions.SectionName))
+            .Configure<SqsOptions>(configuration.GetSection(SqsOptions.SectionName))
+            .Configure<ProcessingOptions>(configuration.GetSection(ProcessingOptions.SectionName))
+            .Configure<ThumbnailOptions>(configuration.GetSection(ThumbnailOptions.SectionName))
+            .Configure<LoanApiOptions>(configuration.GetSection(LoanApiOptions.SectionName));
 
         _ = services.AddLogging(logging =>
         {

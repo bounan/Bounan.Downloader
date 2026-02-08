@@ -8,12 +8,12 @@ namespace Bounan.Downloader.Worker;
 
 public partial class WorkerService(
     ILogger<WorkerService> logger,
-    IOptions<ThreadingConfig> threadingConfig,
+    IOptions<ThreadingOptions> threadingOptions,
     IAniManClient aniManClient,
     ISqsClient sqsClient,
     IVideoCopyingService videoCopyingService) : BackgroundService
 {
-    private readonly ThreadingConfig _threadingConfig = threadingConfig.Value;
+    private readonly ThreadingOptions _threadingOptions = threadingOptions.Value;
 
     private ILogger Logger => logger;
 
@@ -25,11 +25,11 @@ public partial class WorkerService(
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        using var semaphore = new SemaphoreSlim(0, _threadingConfig.Threads);
+        using var semaphore = new SemaphoreSlim(0, _threadingOptions.Threads);
 
         Log.WorkerRunning(Logger, DateTimeOffset.Now);
 
-        var workers = Enumerable.Range(0, _threadingConfig.Threads)
+        var workers = Enumerable.Range(0, _threadingOptions.Threads)
             .Select(i => RunWorkerInstance(semaphore, i, stoppingToken))
             .Concat([ SqsWatcher(semaphore, stoppingToken) ])
             .ToArray();
@@ -42,7 +42,7 @@ public partial class WorkerService(
         while (!stoppingToken.IsCancellationRequested)
         {
             await SqsClient.WaitForMessageAsync(stoppingToken);
-            _ = semaphore.Release(_threadingConfig.Threads);
+            _ = semaphore.Release(_threadingOptions.Threads);
         }
     }
 
