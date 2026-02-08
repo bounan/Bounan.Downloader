@@ -7,7 +7,8 @@ using Bounan.Downloader.Worker.Interfaces;
 using Hls2TlgrUploader.Interfaces;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Bounan.Downloader.Worker.Services;
 
@@ -22,6 +23,12 @@ internal partial class VideoCopyingService(
     : IVideoCopyingService
 {
     private readonly ProcessingConfig _processingConfig = processingConfig.Value;
+
+    private static readonly JsonSerializerOptions JsonSerializerOptions = new()
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+    };
 
     private ILogger<VideoCopyingService> Logger => logger;
 
@@ -129,7 +136,8 @@ internal partial class VideoCopyingService(
 
     private static string EncodeMetadata(VideoMetadata metadata)
     {
-        return Convert.ToBase64String(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(metadata)));
+        var json = JsonSerializer.Serialize(metadata, JsonSerializerOptions);
+        return Convert.ToBase64String(Encoding.UTF8.GetBytes(json));
     }
 
     private record VideoMetadata([UsedImplicitly] IVideoKey VideoKey);

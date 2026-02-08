@@ -7,8 +7,8 @@ using Bounan.Downloader.Worker.Configuration;
 using Bounan.Downloader.Worker.Interfaces;
 using Bounan.Downloader.Worker.Models;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Bounan.Downloader.Worker.Clients;
 
@@ -20,9 +20,11 @@ internal sealed class LoanApiClient(
 {
     private readonly SemaphoreSlim _semaphore = new(1, 1);
 
-    private readonly JsonSerializerSettings _jsonSerializerSettings = new()
+    private static readonly JsonSerializerOptions JsonSerializerOptions = new()
     {
-        ContractResolver = new CamelCasePropertyNamesContractResolver(),
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        PropertyNameCaseInsensitive = true,
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
     };
 
     private IOptions<LoanApiConfig> LoanApiConfig { get; } = loanApiConfig;
@@ -47,9 +49,9 @@ internal sealed class LoanApiClient(
             {
                 FunctionName = LoanApiConfig.Value.FunctionArn,
                 InvocationType = InvocationType.RequestResponse,
-                Payload = JsonConvert.SerializeObject(
+                Payload = JsonSerializer.Serialize(
                     new GetVideoRequest(myAnimeListId, dub, episode),
-                    _jsonSerializerSettings),
+                    JsonSerializerOptions),
             };
 
             var response = await LambdaClient.InvokeAsync(request, cancellationToken);
@@ -58,7 +60,7 @@ internal sealed class LoanApiClient(
                     $"Failed to get video info from LoanApi. HTTP status code: {response.HttpStatusCode}");
 
             var payload = Encoding.UTF8.GetString(response.Payload.ToArray());
-            return JsonConvert.DeserializeObject<GetVideoResponse>(payload, _jsonSerializerSettings)
+            return JsonSerializer.Deserialize<GetVideoResponse>(payload, JsonSerializerOptions)
                    ?? throw new InvalidOperationException("Failed to deserialize response from LoanApi.");
         }
         finally

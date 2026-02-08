@@ -7,8 +7,8 @@ using Bounan.Common;
 using Bounan.Downloader.Worker.Configuration;
 using Bounan.Downloader.Worker.Interfaces;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Bounan.Downloader.Worker.Clients;
 
@@ -21,9 +21,11 @@ public sealed partial class AniManClient(
 {
     private readonly SemaphoreSlim _semaphore = new(1, 1);
 
-    private readonly JsonSerializerSettings _jsonSerializerSettings = new()
+    private static readonly JsonSerializerOptions JsonSerializerOptions = new()
     {
-        ContractResolver = new CamelCasePropertyNamesContractResolver(),
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        PropertyNameCaseInsensitive = true,
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
     };
 
     private ILogger<AniManClient> Logger { get; } = logger;
@@ -56,7 +58,7 @@ public sealed partial class AniManClient(
             }
 
             var payload = Encoding.UTF8.GetString(response.Payload.ToArray());
-            return JsonConvert.DeserializeObject<DownloaderResponse>(payload, _jsonSerializerSettings);
+            return JsonSerializer.Deserialize<DownloaderResponse>(payload, JsonSerializerOptions);
         }
         catch (Exception ex)
         {
@@ -78,7 +80,7 @@ public sealed partial class AniManClient(
             {
                 FunctionName = AniManConfig.Value.UpdateVideoStatusLambdaFunctionName,
                 InvocationType = InvocationType.RequestResponse,
-                Payload = JsonConvert.SerializeObject(result, _jsonSerializerSettings),
+                Payload = JsonSerializer.Serialize(result, JsonSerializerOptions),
             };
 
             var response = await LambdaClient.InvokeAsync(request, cancellationToken);
