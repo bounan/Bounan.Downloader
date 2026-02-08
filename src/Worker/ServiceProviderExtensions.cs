@@ -19,6 +19,7 @@ public static class ServiceProviderExtensions
         services.Configure<SqsConfig>(configuration.GetSection(SqsConfig.SectionName));
         services.Configure<ProcessingConfig>(configuration.GetSection(ProcessingConfig.SectionName));
         services.Configure<ThumbnailConfig>(configuration.GetSection(ThumbnailConfig.SectionName));
+        services.Configure<LoanApiConfig>(configuration.GetSection(LoanApiConfig.SectionName));
 
         services.AddLogging(logging =>
         {
@@ -35,6 +36,7 @@ public static class ServiceProviderExtensions
         services.AddSingleton<IAmazonSQS>(_ => awsOptions.CreateServiceClient<IAmazonSQS>());
 
         services.AddSingleton<IAniManClient, AniManClient>();
+        services.AddSingleton<ILoanApiClient, LoanApiClient>();
         services.AddSingleton<IShikimoriClient, ShikimoriClient>();
         services.AddSingleton<ISqsClient, SqsClient>();
         services.AddSingleton<IVideoCopyingService, VideoCopyingService>();

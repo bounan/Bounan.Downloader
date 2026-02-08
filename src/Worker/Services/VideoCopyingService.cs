@@ -4,7 +4,6 @@ using Bounan.Common;
 using Bounan.Downloader.Worker.Configuration;
 using Bounan.Downloader.Worker.Helpers;
 using Bounan.Downloader.Worker.Interfaces;
-using Bounan.LoanApi.Interfaces;
 using Hls2TlgrUploader.Interfaces;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Options;
@@ -16,8 +15,7 @@ internal partial class VideoCopyingService(
     ILogger<VideoCopyingService> logger,
     IOptions<ProcessingConfig> processingConfig,
     IHttpClientFactory httpClientFactory,
-    ILoanApiComClient loanApiComClient,
-    ILoanApiInfoClient loanApiInfoClient,
+    ILoanApiClient loanApiClient,
     IAniManClient aniManClient,
     IThumbnailService thumbnailService,
     IVideoUploadingService videoUploadingService)
@@ -31,9 +29,7 @@ internal partial class VideoCopyingService(
 
     private IAniManClient AniManClient => aniManClient;
 
-    private ILoanApiComClient LoanApiComClient => loanApiComClient;
-
-    private ILoanApiInfoClient LoanApiInfoClient => loanApiInfoClient;
+    private ILoanApiClient LoanApiClient => loanApiClient;
 
     private IVideoUploadingService VideoUploadingService => videoUploadingService;
 
@@ -66,10 +62,7 @@ internal partial class VideoCopyingService(
 
     private async Task ProcessVideoInternalAsync(IVideoKey videoKey, CancellationToken cancellationToken)
     {
-        var signedUri = await LoanApiComClient.GetRequiredSignedLinkAsync(videoKey, cancellationToken);
-        Log.ProcessingVideo(Logger, signedUri);
-
-        (Uri playlistUri, Uri origThumbnail) = await GetPlaylistAndThumbnailAsync(signedUri, cancellationToken);
+        (Uri playlistUri, Uri origThumbnail) = await GetPlaylistAndThumbnailAsync(videoKey, cancellationToken);
         Log.GotVideoInfo(Logger, playlistUri, origThumbnail);
 
         var videoParts = await GetVideoPartsAsync(playlistUri, cancellationToken);
@@ -79,7 +72,7 @@ internal partial class VideoCopyingService(
             videoKey,
             cancellationToken);
 
-        var videoMetadata = new VideoMetadata(videoKey, signedUri.ToString());
+        var videoMetadata = new VideoMetadata(videoKey);
 
         var message = await VideoUploadingService.CopyToTelegramAsync(
             videoParts,
@@ -92,11 +85,11 @@ internal partial class VideoCopyingService(
     }
 
     private async Task<(Uri Playlist, Uri Thumbnail)> GetPlaylistAndThumbnailAsync(
-        Uri signedUri,
+        IVideoKey videoKey,
         CancellationToken cancellationToken)
     {
         (Dictionary<string, Uri> playlists, Uri thumb) =
-            await LoanApiInfoClient.GetPlaylistsAndThumbnailUrlsAsync(signedUri, cancellationToken);
+            await LoanApiClient.GetVideo(videoKey.MyAnimeListId, videoKey.Dub, videoKey.Episode, cancellationToken);
         Log.GotPlaylistsAndThumbnail(Logger, playlists, thumb);
 
         var sortedPlaylists = playlists
@@ -139,5 +132,5 @@ internal partial class VideoCopyingService(
         return Convert.ToBase64String(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(metadata)));
     }
 
-    private record VideoMetadata([UsedImplicitly] IVideoKey VideoKey, [UsedImplicitly] string SignedLink);
+    private record VideoMetadata([UsedImplicitly] IVideoKey VideoKey);
 }

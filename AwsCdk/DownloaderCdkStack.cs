@@ -73,6 +73,16 @@ internal sealed class DownloaderCdkStack : Stack
 
     private void GrantPermissionsForLambdas(DownloaderCdkStackConfig config, IGrantable user)
     {
+        var loanApiClientLambda = Function.FromFunctionAttributes(
+            this,
+            "LoanApiFunction",
+            new FunctionAttributes
+            {
+                FunctionArn = config.LoanApiFunctionArn,
+                SkipPermissions = true,
+            });
+        loanApiClientLambda.GrantInvoke(user);
+
         var getAnimeToDownloadLambda = Function.FromFunctionName(
             this,
             "GetAnime",
@@ -185,7 +195,7 @@ internal sealed class DownloaderCdkStack : Stack
             },
             LoanApi = new
             {
-                Token = config.LoanApiToken,
+                FunctionArn = config.LoanApiFunctionArn,
             },
         };
 

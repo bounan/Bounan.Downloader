@@ -14,7 +14,8 @@ internal sealed class DownloaderCdkStackConfig
             .Build();
 
         AlertEmail = GetCdkValue(cdkPrefix, "alert-email", localConfig);
-        LoanApiToken = GetCdkValue(cdkPrefix, "loan-api-token", localConfig);
+
+        LoanApiFunctionArn = GetCdkValue(cdkPrefix, "loan-api-function-arn", localConfig);
 
         GetVideoToDownloadLambdaName = GetCdkValue(cdkPrefix, "get-video-to-download", localConfig);
         UpdateVideoStatusLambdaName = GetCdkValue(cdkPrefix, "update-video-status", localConfig);
@@ -29,7 +30,7 @@ internal sealed class DownloaderCdkStackConfig
 
     public string AlertEmail { get; }
 
-    public string LoanApiToken { get; }
+    public string LoanApiFunctionArn { get; }
 
     public string GetVideoToDownloadLambdaName { get; }
 

@@ -24,6 +24,7 @@
     <PackageReference Include="Hls2TlgrUploader" Version="1.0.10" />
     <PackageReference Include="JetBrains.Annotations" Version="2025.2.4" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.2" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="SixLabors.ImageSharp" Version="3.1.12" />
     <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="2.1.7" />
   </ItemGroup>
@@ -36,6 +37,5 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Common\cs\Common.csproj"/>
-    <ProjectReference Include="..\LoanApi\LoanApi\LoanApi.csproj"/>
   </ItemGroup>
 </Project>

@@ -1,6 +1,5 @@
 using Amazon.Extensions.Configuration.SystemsManager;
 using Bounan.Downloader.Worker.Helpers;
-using Bounan.LoanApi;
 using Hls2TlgrUploader;
 
 namespace Bounan.Downloader.Worker;
@@ -21,7 +20,6 @@ internal static class Program
         builder.Configuration.AddEnvironmentVariables();
 
         builder.Services
-            .AddLoanApiDownloadingServices(cfg => builder.Configuration.GetSection("LoanApi").Bind(cfg))
             .AddHls2TlgrUploader(builder.Configuration.GetRequiredSection("Hls2TlgrUploader"))
             .AddWorkerServices(builder.Configuration);
 
