@@ -8,13 +8,11 @@ using Microsoft.Extensions.Options;
 
 namespace Bounan.Downloader.Worker.Clients;
 
-// ReSharper disable once ClassWithVirtualMembersNeverInherited.Global - This class is partially inherited
-public partial class SqsClient : ISqsClient, IDisposable
+public sealed partial class SqsClient : ISqsClient, IDisposable
 {
     private readonly int errorRetryIntervalMs;
     private readonly ReceiveMessageRequest receiveMessageRequest;
     private readonly SemaphoreSlim semaphore;
-    private bool isDisposed;
 
     public SqsClient(
         ILogger<SqsClient> logger,
@@ -47,8 +45,8 @@ public partial class SqsClient : ISqsClient, IDisposable
 
     public void Dispose()
     {
-        Dispose(true);
-        GC.SuppressFinalize(this);
+        semaphore.Dispose();
+        AmazonAmazonSqs.Dispose();
     }
 
     [SuppressMessage("Design", "CA1031:Do not catch general exception types")]
@@ -95,20 +93,5 @@ public partial class SqsClient : ISqsClient, IDisposable
         {
             _ = semaphore.Release();
         }
-    }
-
-    protected virtual void Dispose(bool disposing)
-    {
-        if (isDisposed)
-        {
-            return;
-        }
-
-        if (disposing)
-        {
-            semaphore.Dispose();
-        }
-
-        isDisposed = true;
     }
 }
