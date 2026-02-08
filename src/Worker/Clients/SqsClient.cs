@@ -78,12 +78,7 @@ public partial class SqsClient : ISqsClient, IDisposable
             {
                 try
                 {
-                    // Prevent the message receiving operation from hanging indefinitely
-                    using var hangPreventerCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-                    hangPreventerCts.CancelAfter((_receiveMessageRequest.WaitTimeSeconds.Value + 2) * 1000);
-                    var hangPreventer = hangPreventerCts.Token;
-
-                    var response = await AmazonAmazonSqs.ReceiveMessageAsync(_receiveMessageRequest, hangPreventer);
+                    var response = await AmazonAmazonSqs.ReceiveMessageAsync(_receiveMessageRequest, cancellationToken);
                     Log.ReceivedMessages(Logger, response.Messages?.Count ?? 0);
                     if (response.Messages is not { Count: > 0 }) continue;
 
@@ -93,14 +88,10 @@ public partial class SqsClient : ISqsClient, IDisposable
                             QueueUrl = _receiveMessageRequest.QueueUrl,
                             ReceiptHandle = response.Messages[0].ReceiptHandle,
                         },
-                        hangPreventerCts.Token);
+                        cancellationToken);
 
                     Log.RunningVideoProcessing(Logger);
                     return;
-                }
-                catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
-                {
-                    Log.HangDetected(Logger);
                 }
                 catch (Exception ex)
                 {
