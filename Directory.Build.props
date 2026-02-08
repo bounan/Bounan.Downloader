@@ -1,0 +1,25 @@
+﻿<Project>
+  <PropertyGroup>
+    <!-- Make analyzers consistent across VS/Rider/CI -->
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <AnalysisLevel>latest</AnalysisLevel>
+    <AnalysisMode>AllEnabledByDefault</AnalysisMode>
+
+    <!-- Treat style violations as build-time feedback -->
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+
+    <!-- Use the same language features where possible -->
+    <LangVersion>latest</LangVersion>
+
+    <!-- Recommended for modern C# correctness -->
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="StyleCop.Analyzers" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AdditionalFiles Include="$(MSBuildThisFileDirectory)stylecop.json" />
+  </ItemGroup>
+</Project>

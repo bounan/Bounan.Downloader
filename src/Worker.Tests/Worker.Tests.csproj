@@ -12,8 +12,6 @@
         <AssemblyName>Bounan.Downloader.Worker.Tests</AssemblyName>
     </PropertyGroup>
 
-    <Import Project="..\Common\StyleCop.props"/>
-
     <ItemGroup>
         <PackageReference Include="DotNetEnv" />
         <PackageReference Include="Microsoft.NET.Test.Sdk" />
