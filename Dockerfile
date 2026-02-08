@@ -9,13 +9,14 @@ WORKDIR /app
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /src
 
-COPY ["src/Common/StyleCop.props", "Common/"]
+COPY ["Directory.Build.props", "./"]
+COPY ["Directory.Packages.props", "./"]
 COPY ["src/Common/cs/Common.csproj", "Common/cs/"]
-COPY ["src/LoanApi/StyleCop.props", "LoanApi/"]
-COPY ["src/LoanApi/LoanApi/LoanApi.csproj", "LoanApi/LoanApi/"]
 COPY ["src/Worker/Worker.csproj", "Worker/"]
 RUN dotnet restore "Worker/Worker.csproj" -r linux-musl-x64
 
+COPY ["stylecop.json", "./"]
+COPY [".editorconfig", "./"]
 COPY src .
 WORKDIR /src/Worker
 
