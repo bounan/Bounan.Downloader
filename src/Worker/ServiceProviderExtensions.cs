@@ -4,7 +4,6 @@ using Bounan.Downloader.Worker.Clients;
 using Bounan.Downloader.Worker.Configuration;
 using Bounan.Downloader.Worker.Interfaces;
 using Bounan.Downloader.Worker.Services;
-using SqsClient = Bounan.Downloader.Worker.Clients.SqsClient;
 
 namespace Bounan.Downloader.Worker;
 
@@ -43,11 +42,17 @@ public static class ServiceProviderExtensions
             .AddSingleton<IAniManClient, AniManClient>()
             .AddSingleton<ILoanApiClient, LoanApiClient>()
             .AddSingleton<IShikimoriClient, ShikimoriClient>()
-            .AddSingleton<ISqsClient, SqsClient>()
             .AddSingleton<IVideoCopyingService, VideoCopyingService>()
             .AddSingleton<IThumbnailService, ThumbnailService>();
 
-        _ = services.AddHostedService<WorkerService>();
+        _ = services
+            .AddSingleton<JobSignalingService>()
+            .AddSingleton<IJobSignalReceiver>(sp => sp.GetRequiredService<JobSignalingService>())
+            .AddSingleton<IJobSignalSender>(sp => sp.GetRequiredService<JobSignalingService>());
+
+        _ = services
+            .AddHostedService<SqsClient>()
+            .AddHostedService<WorkerService>();
 
         return services;
     }

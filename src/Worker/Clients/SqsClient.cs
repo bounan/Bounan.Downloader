@@ -8,18 +8,18 @@ using Microsoft.Extensions.Options;
 
 namespace Bounan.Downloader.Worker.Clients;
 
-public sealed partial class SqsClient : ISqsClient, IDisposable
+public sealed partial class SqsClient : BackgroundService
 {
     private readonly int errorRetryIntervalMs;
     private readonly ReceiveMessageRequest receiveMessageRequest;
-    private readonly SemaphoreSlim semaphore;
 
     public SqsClient(
         ILogger<SqsClient> logger,
         IOptions<SqsOptions> sqsOptions,
         IOptions<ProcessingOptions> processingOptions,
         IOptions<ThreadingOptions> threadingOptions,
-        IAmazonSQS amazonSqs)
+        IAmazonSQS amazonSqs,
+        IJobSignalSender jobSignalSender)
     {
         ArgumentNullException.ThrowIfNull(sqsOptions);
         ArgumentNullException.ThrowIfNull(processingOptions);
@@ -36,62 +36,62 @@ public sealed partial class SqsClient : ISqsClient, IDisposable
             WaitTimeSeconds = sqsOptions.Value.PollingIntervalSeconds,
         };
 
-        semaphore = new SemaphoreSlim(threadingOptions.Value.Threads, threadingOptions.Value.Threads);
+        JobSignalSender = jobSignalSender;
     }
 
     private ILogger<SqsClient> Logger { get; }
 
     private IAmazonSQS AmazonAmazonSqs { get; }
 
-    public void Dispose()
+    private IJobSignalSender JobSignalSender { get; }
+
+    public override void Dispose()
     {
-        semaphore.Dispose();
+        base.Dispose();
         AmazonAmazonSqs.Dispose();
     }
 
     [SuppressMessage("Design", "CA1031:Do not catch general exception types")]
-    public async Task WaitForMessageAsync(CancellationToken cancellationToken)
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         Guard.NotNull(receiveMessageRequest.WaitTimeSeconds, nameof(receiveMessageRequest.WaitTimeSeconds));
         Guard.NotNullOrEmpty(receiveMessageRequest.QueueUrl, nameof(receiveMessageRequest.QueueUrl));
 
         Log.WaitingForMessage(Logger);
 
-        await semaphore.WaitAsync(cancellationToken);
-        try
+        while (!stoppingToken.IsCancellationRequested)
         {
-            while (!cancellationToken.IsCancellationRequested)
+            try
             {
-                try
+                await JobSignalSender.WaitForCapacityAsync(stoppingToken);
+
+                var response = await AmazonAmazonSqs.ReceiveMessageAsync(receiveMessageRequest, stoppingToken);
+                Log.ReceivedMessages(Logger, response.Messages?.Count ?? 0);
+
+                if (response.Messages is not { Count: > 0 })
                 {
-                    var response = await AmazonAmazonSqs.ReceiveMessageAsync(receiveMessageRequest, cancellationToken);
-                    Log.ReceivedMessages(Logger, response.Messages?.Count ?? 0);
-                    if (response.Messages is not { Count: > 0 })
+                    continue;
+                }
+
+                // Enqueue signal (may block if capacity vanished between check and write)
+                await JobSignalSender.SignalJobAsync(stoppingToken);
+
+                // Only delete after successfully enqueueing the work signal
+                await AmazonAmazonSqs.DeleteMessageAsync(
+                    new DeleteMessageRequest
                     {
-                        continue;
-                    }
+                        QueueUrl = receiveMessageRequest.QueueUrl,
+                        ReceiptHandle = response.Messages[0].ReceiptHandle,
+                    },
+                    stoppingToken);
 
-                    _ = AmazonAmazonSqs.DeleteMessageAsync(
-                        new DeleteMessageRequest
-                        {
-                            QueueUrl = receiveMessageRequest.QueueUrl,
-                            ReceiptHandle = response.Messages[0].ReceiptHandle,
-                        },
-                        cancellationToken);
-
-                    Log.RunningVideoProcessing(Logger);
-                    return;
-                }
-                catch (Exception ex)
-                {
-                    Log.FailedToReceiveMessage(Logger, ex.Message);
-                    await Task.Delay(errorRetryIntervalMs, cancellationToken);
-                }
+                Log.RunningVideoProcessing(Logger);
             }
-        }
-        finally
-        {
-            _ = semaphore.Release();
+            catch (Exception ex)
+            {
+                Log.FailedToReceiveMessage(Logger, ex.Message);
+                await Task.Delay(errorRetryIntervalMs, stoppingToken);
+            }
         }
     }
 }

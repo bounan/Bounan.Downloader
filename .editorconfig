@@ -55,6 +55,7 @@ dotnet_diagnostic.SX1101.severity = warning
 
 # Disable/setup particular rules
 dotnet_code_quality.CA1822.api_surface = private # Only private members should be flagged for static
+dotnet_diagnostic.CA1848.severity = none # Use logging methods
 dotnet_diagnostic.CA2007.severity = none # Use 'ConfigureAwait'
 dotnet_diagnostic.SA0001.severity = none # XML comment analysis should be disabled for generated code
 dotnet_diagnostic.SA1134.severity = none # Attributes should not share line

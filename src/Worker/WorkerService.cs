@@ -10,7 +10,7 @@ public partial class WorkerService(
     ILogger<WorkerService> logger,
     IOptions<ThreadingOptions> threadingOptions,
     IAniManClient aniManClient,
-    ISqsClient sqsClient,
+    IJobSignalReceiver jobSignalReceiver,
     IVideoCopyingService videoCopyingService) : BackgroundService
 {
     private readonly ThreadingOptions threadingOptions = threadingOptions.Value;
@@ -19,56 +19,48 @@ public partial class WorkerService(
 
     private IAniManClient AniManClient => aniManClient;
 
-    private ISqsClient SqsClient => sqsClient;
+    private IJobSignalReceiver JobSignalReceiver => jobSignalReceiver;
 
     private IVideoCopyingService VideoCopyingService => videoCopyingService;
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        using var semaphore = new SemaphoreSlim(0, threadingOptions.Threads);
-
         Log.WorkerRunning(Logger, DateTimeOffset.Now);
 
         var workers = Enumerable.Range(0, threadingOptions.Threads)
-            .Select(i => RunWorkerInstance(semaphore, i, stoppingToken))
-            .Concat([SqsWatcher(semaphore, stoppingToken)])
+            .Select(i => RunWorkerInstance(i, stoppingToken))
             .ToArray();
 
         await Task.WhenAll(workers);
     }
 
-    private async Task SqsWatcher(SemaphoreSlim semaphore, CancellationToken stoppingToken)
-    {
-        while (!stoppingToken.IsCancellationRequested)
-        {
-            await SqsClient.WaitForMessageAsync(stoppingToken);
-            _ = semaphore.Release(threadingOptions.Threads);
-        }
-    }
-
-    private async Task RunWorkerInstance(SemaphoreSlim semaphore, int i, CancellationToken stoppingToken)
+    private async Task RunWorkerInstance(int i, CancellationToken stoppingToken)
     {
         using var scope1 = Log.BeginScopeWorkerId(Logger, i);
         var stopwatch = new Stopwatch();
 
+        Logger.LogInformation("Worker instance {WorkerId} started", i);
+
         while (!stoppingToken.IsCancellationRequested)
         {
+            await JobSignalReceiver.WaitForJobAsync(stoppingToken);
+
             var message = await AniManClient.GetNextVideo(stoppingToken);
             if (message?.VideoKey is null)
             {
-                Log.WaitingForMessage(Logger);
-                await semaphore.WaitAsync(stoppingToken);
-                Log.WorkerReleased(Logger);
+                Logger.LogInformation("No video to process, skipping...");
                 continue;
             }
 
             ArgumentNullException.ThrowIfNull(message.VideoKey);
             using var scope2 = Log.BeginScopeMsg(Logger, message.VideoKey.CalculateHash());
 
-            stopwatch.Start();
+            stopwatch.Restart();
             await VideoCopyingService.ProcessVideo(message.VideoKey, stoppingToken);
             Log.VideoProcessed(Logger, stopwatch.Elapsed);
-            stopwatch.Reset();
+            stopwatch.Stop();
         }
+
+        Logger.LogInformation("Worker instance {WorkerId} stopping", i);
     }
 }

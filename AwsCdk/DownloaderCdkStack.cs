@@ -66,7 +66,9 @@ internal sealed class DownloaderCdkStack : Stack
     private Queue CreateVideoRegisteredQueue(DownloaderCdkStackConfig config, IGrantable user)
     {
         var newEpisodesTopic = Topic.FromTopicArn(this, "VideoRegisteredTopic", config.VideoRegisteredTopicArn);
-        var newEpisodesQueue = new Queue(this, "VideoRegisteredQueue");
+
+        var queueProps = new QueueProps { RetentionPeriod = Duration.Minutes(5) };
+        var newEpisodesQueue = new Queue(this, "VideoRegisteredQueue", queueProps);
         _ = newEpisodesTopic.AddSubscription(new SqsSubscription(newEpisodesQueue));
 
         _ = newEpisodesQueue.GrantConsumeMessages(user);
@@ -140,7 +142,7 @@ internal sealed class DownloaderCdkStack : Stack
                     { "LogGroupName", logGroup.LogGroupName },
                 },
                 Statistic = "Sum",
-                Period = Duration.Minutes(2),
+                Period = Duration.Minutes(5),
             });
 
         var alarmProps = new AlarmProps
@@ -150,7 +152,7 @@ internal sealed class DownloaderCdkStack : Stack
             ComparisonOperator = ComparisonOperator.LESS_THAN_OR_EQUAL_TO_THRESHOLD,
             EvaluationPeriods = 1,
             TreatMissingData = TreatMissingData.BREACHING,
-            AlarmDescription = "Alarm if no logs received within 2 minutes",
+            AlarmDescription = "Alarm if no logs received within 5 minutes",
         };
         var noLogAlarm = new Alarm(this, "NoLogsAlarm", alarmProps);
 

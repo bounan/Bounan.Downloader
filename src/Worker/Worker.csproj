@@ -38,4 +38,8 @@
   <ItemGroup>
     <ProjectReference Include="..\Common\cs\Common.csproj"/>
   </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Interfaces\ISqsClient.cs" />
+  </ItemGroup>
 </Project>
