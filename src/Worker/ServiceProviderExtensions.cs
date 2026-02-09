@@ -19,6 +19,7 @@ public static class ServiceProviderExtensions
             .AddOptionsExt<AniManOptions>()
             .AddOptionsExt<SqsOptions>()
             .AddOptionsExt<ProcessingOptions>()
+            .AddOptionsExt<ThreadingOptions>()
             .AddOptionsExt<ThumbnailOptions>()
             .AddOptionsExt<LoanApiOptions>();
 
