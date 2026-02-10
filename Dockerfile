@@ -9,14 +9,12 @@ WORKDIR /app
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /src
 
-COPY ["Directory.Build.props", "./"]
-COPY ["Directory.Packages.props", "./"]
+COPY ["Directory.Build.props","Directory.Packages.props",  "./"]
 COPY ["src/Common/cs/Common.csproj", "Common/cs/"]
 COPY ["src/Worker/Worker.csproj", "Worker/"]
 RUN dotnet restore "Worker/Worker.csproj" -r linux-musl-x64
 
-COPY ["stylecop.json", "./"]
-COPY [".editorconfig", "./"]
+COPY ["stylecop.json", ".editorconfig", "./"]
 COPY src .
 WORKDIR /src/Worker
 
