@@ -43,12 +43,11 @@ public partial class WorkerService(
 
         while (!stoppingToken.IsCancellationRequested)
         {
-            await JobSignalReceiver.WaitForJobAsync(stoppingToken);
-
             var message = await AniManClient.GetNextVideo(stoppingToken);
             if (message?.VideoKey is null)
             {
-                Logger.LogInformation("No video to process, skipping...");
+                Logger.LogInformation("No video to process, waiting for job signal...");
+                await JobSignalReceiver.WaitForJobAsync(stoppingToken);
                 continue;
             }
 

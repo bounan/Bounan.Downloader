@@ -21,8 +21,6 @@ internal class JobSignalingService : IJobSignalSender, IJobSignalReceiver
         };
 
         channel = Channel.CreateBounded<bool>(boundedChannelOptions);
-
-        FillInitially(threadingOptions.Value.Threads);
     }
 
     public Task WaitForCapacityAsync(CancellationToken cancellationToken)
@@ -38,14 +36,5 @@ internal class JobSignalingService : IJobSignalSender, IJobSignalReceiver
     public Task WaitForJobAsync(CancellationToken cancellationToken)
     {
         return channel.Reader.ReadAsync(cancellationToken).AsTask();
-    }
-
-    // Fill the channel with initial capacity to allow workers to start immediately.
-    private void FillInitially(int capacity)
-    {
-        for (int i = 0; i < capacity; i++)
-        {
-            channel.Writer.TryWrite(true);
-        }
     }
 }
