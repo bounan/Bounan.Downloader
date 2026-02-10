@@ -1,12 +1,5 @@
-﻿FROM mcr.microsoft.com/dotnet/runtime-deps:9.0-alpine AS base
-
-VOLUME /tmp/bounan-downloader
-
-RUN apk add ffmpeg font-roboto
-
-WORKDIR /app
-
-FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+﻿
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
 COPY ["Directory.Build.props","Directory.Packages.props",  "./"]
@@ -20,7 +13,13 @@ WORKDIR /src/Worker
 
 RUN dotnet publish "Worker.csproj" --no-restore --self-contained true --configuration Release --runtime linux-musl-x64 --output /app/publish
 
-FROM base AS final
+FROM mcr.microsoft.com/dotnet/runtime-deps:10.0-alpine AS final
+
+VOLUME /tmp/bounan-downloader
+
+RUN apk add ffmpeg font-roboto
+
+WORKDIR /app
 
 COPY --from=build /app/publish .
 
