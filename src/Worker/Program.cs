@@ -23,13 +23,6 @@ internal static class Program
             .AddHls2TlgrUploader(builder.Configuration.GetRequiredSection("Hls2TlgrUploader"))
             .AddWorkerServices(builder.Configuration);
 
-#if DEBUG && false
-        AWSConfigs.LoggingConfig.LogTo = LoggingOptions.Console;
-        AWSConfigs.LoggingConfig.LogResponses = ResponseLoggingOption.Always;
-        AWSConfigs.LoggingConfig.LogMetrics = true;
-        AWSConfigs.LoggingConfig.LogMetricsFormat = LogMetricsFormatOption.JSON;
-#endif
-
         builder.Build().Run();
     }
 }
