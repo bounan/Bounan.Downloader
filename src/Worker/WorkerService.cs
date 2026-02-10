@@ -39,7 +39,7 @@ public partial class WorkerService(
         using var scope1 = Log.BeginScopeWorkerId(Logger, i);
         var stopwatch = new Stopwatch();
 
-        Logger.LogInformation("Worker instance {WorkerId} started", i);
+        Logger.LogInformation("Worker instance started");
 
         while (!stoppingToken.IsCancellationRequested)
         {
@@ -60,6 +60,6 @@ public partial class WorkerService(
             stopwatch.Stop();
         }
 
-        Logger.LogInformation("Worker instance {WorkerId} stopping", i);
+        Logger.LogInformation("Worker instance stopping");
     }
 }

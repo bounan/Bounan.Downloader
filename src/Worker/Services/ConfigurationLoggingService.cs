@@ -1,4 +1,5 @@
-﻿using Bounan.Downloader.Worker.Configuration;
+﻿using System.Diagnostics.CodeAnalysis;
+using Bounan.Downloader.Worker.Configuration;
 using Microsoft.Extensions.Options;
 
 namespace Bounan.Downloader.Worker.Services;
@@ -13,6 +14,7 @@ internal class ConfigurationLoggingService(
     IOptions<LoanApiOptions> loanApiOptions)
     : IHostedService
 {
+    [SuppressMessage("Performance", "CA1873:Avoid potentially expensive logging")]
     public Task StartAsync(CancellationToken cancellationToken)
     {
         logger.LogInformation(
