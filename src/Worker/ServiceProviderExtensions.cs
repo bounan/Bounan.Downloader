@@ -51,6 +51,7 @@ public static class ServiceProviderExtensions
             .AddSingleton<IJobSignalSender>(sp => sp.GetRequiredService<JobSignalingService>());
 
         _ = services
+            .AddHostedService<ConfigurationLoggingService>()
             .AddHostedService<SqsClient>()
             .AddHostedService<WorkerService>();
 
