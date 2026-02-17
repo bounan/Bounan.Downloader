@@ -1,18 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Worker">
-
   <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
-    <RuntimeIdentifiers>linux-musl-x64;win-x64</RuntimeIdentifiers>
-    <LangVersion>13</LangVersion>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <RootNamespace>Bounan.Downloader.Worker</RootNamespace>
     <AssemblyName>Bounan.Downloader.Worker</AssemblyName>
-    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
-    <EnableNETAnalyzers>true</EnableNETAnalyzers>
-    <AnalysisMode>AllEnabledByDefault</AnalysisMode>
-    <NoWarn>CA2007;CA1515;SYSLIB1013;</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
@@ -30,16 +19,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
-      <_Parameter1>Bounan.Downloader.Worker.Tests</_Parameter1>
-    </AssemblyAttribute>
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\Common\cs\Common.csproj"/>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Remove="Interfaces\ISqsClient.cs"/>
   </ItemGroup>
 </Project>

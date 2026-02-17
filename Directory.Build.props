@@ -1,25 +1,29 @@
 ﻿<Project>
   <PropertyGroup>
-    <!-- Make analyzers consistent across VS/Rider/CI -->
+    <TargetFramework>net10.0</TargetFramework>
+    <RuntimeIdentifiers>linux-musl-x64;win-x64</RuntimeIdentifiers>
+    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <AnalysisLevel>latest</AnalysisLevel>
     <AnalysisMode>AllEnabledByDefault</AnalysisMode>
-
-    <!-- Treat style violations as build-time feedback -->
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-
-    <!-- Use the same language features where possible -->
-    <LangVersion>latest</LangVersion>
-
-    <!-- Recommended for modern C# correctness -->
-    <Nullable>enable</Nullable>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <NoWarn>CA2007;CA1515;SYSLIB1013;</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="StyleCop.Analyzers" />
+    <PackageReference Include="StyleCop.Analyzers"/>
   </ItemGroup>
 
   <ItemGroup>
-    <AdditionalFiles Include="$(MSBuildThisFileDirectory)stylecop.json" />
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+      <_Parameter1>$(AssemblyName).Tests</_Parameter1>
+    </AssemblyAttribute>
+
+    <AdditionalFiles Include="$(MSBuildThisFileDirectory)stylecop.json"/>
   </ItemGroup>
 </Project>
