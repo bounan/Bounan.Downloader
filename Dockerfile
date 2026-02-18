@@ -2,8 +2,11 @@
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
-COPY ["Directory.Build.props","Directory.Packages.props",  "./"]
+COPY ["Directory.Build.props", "Directory.Packages.props", "./"]
 COPY ["src/Common/cs/Common.csproj", "Common/cs/"]
+COPY ["src/Domain/Domain.csproj", "Domain/"]
+COPY ["src/Application/Application.csproj", "Application/"]
+COPY ["src/Infrastructure/Infrastructure.csproj", "Infrastructure/"]
 COPY ["src/Worker/Worker.csproj", "Worker/"]
 RUN dotnet restore "Worker/Worker.csproj" -r linux-musl-x64
 

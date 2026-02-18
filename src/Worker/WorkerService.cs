@@ -1,17 +1,20 @@
 using System.Diagnostics;
-using Bounan.Downloader.Worker.Configuration;
+using Bounan.Downloader.Application.Abstractions;
+using Bounan.Downloader.Application.Options;
+using Bounan.Downloader.Domain.Clients;
+using Bounan.Downloader.Worker.Abstractions;
 using Bounan.Downloader.Worker.Extensions;
-using Bounan.Downloader.Worker.Interfaces;
 using Microsoft.Extensions.Options;
 
 namespace Bounan.Downloader.Worker;
 
-public partial class WorkerService(
+internal partial class WorkerService(
     ILogger<WorkerService> logger,
     IOptions<ThreadingOptions> threadingOptions,
     IAniManClient aniManClient,
     IJobSignalReceiver jobSignalReceiver,
-    IVideoCopyingService videoCopyingService) : BackgroundService
+    IVideoCopyingService videoCopyingService)
+    : BackgroundService
 {
     private readonly ThreadingOptions threadingOptions = threadingOptions.Value;
 

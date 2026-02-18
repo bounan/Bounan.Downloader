@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Bounan.Downloader.Infrastructure.Tests</RootNamespace>
+    <AssemblyName>Bounan.Downloader.Infrastructure.Tests</AssemblyName>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="DotNetEnv"/>
+    <PackageReference Include="coverlet.collector"/>
+    <PackageReference Include="Microsoft.NET.Test.Sdk"/>
+    <PackageReference Include="Moq"/>
+    <PackageReference Include="NUnit"/>
+    <PackageReference Include="NUnit3TestAdapter"/>
+    <PackageReference Include="NUnit.Analyzers">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Infrastructure\Infrastructure.csproj"/>
+  </ItemGroup>
+</Project>

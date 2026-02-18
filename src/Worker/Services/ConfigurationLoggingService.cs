@@ -1,5 +1,6 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using Bounan.Downloader.Worker.Configuration;
+using System.Diagnostics.CodeAnalysis;
+using Bounan.Downloader.Application.Options;
+using Bounan.Downloader.Infrastructure.Options;
 using Microsoft.Extensions.Options;
 
 namespace Bounan.Downloader.Worker.Services;

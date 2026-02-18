@@ -1,6 +1,6 @@
 namespace Bounan.Downloader.Worker;
 
-public partial class WorkerService
+internal partial class WorkerService
 {
     private static partial class Log
     {

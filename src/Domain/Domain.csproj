@@ -1,0 +1,12 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Bounan.Downloader.Domain</RootNamespace>
+    <AssemblyName>Bounan.Downloader.Domain</AssemblyName>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="JetBrains.Annotations" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Common\cs\Common.csproj" />
+  </ItemGroup>
+</Project>

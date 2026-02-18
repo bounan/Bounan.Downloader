@@ -1,6 +1,6 @@
-﻿using System.Threading.Channels;
-using Bounan.Downloader.Worker.Configuration;
-using Bounan.Downloader.Worker.Interfaces;
+using System.Threading.Channels;
+using Bounan.Downloader.Application.Options;
+using Bounan.Downloader.Worker.Abstractions;
 using Microsoft.Extensions.Options;
 
 namespace Bounan.Downloader.Worker.Services;

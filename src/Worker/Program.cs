@@ -1,4 +1,7 @@
 using Amazon.Extensions.Configuration.SystemsManager;
+using Bounan.Downloader.Application.Extensions;
+using Bounan.Downloader.Infrastructure.Extensions;
+using Bounan.Downloader.Worker.Extensions;
 using Bounan.Downloader.Worker.Helpers;
 using Hls2TlgrUploader;
 
@@ -21,6 +24,8 @@ internal static class Program
 
         builder.Services
             .AddHls2TlgrUploader(builder.Configuration.GetRequiredSection("Hls2TlgrUploader"))
+            .AddInfrastructure(builder.Configuration)
+            .AddApplication()
             .AddWorkerServices(builder.Configuration);
 
         builder.Build().Run();

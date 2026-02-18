@@ -3,7 +3,7 @@ using Bounan.Common;
 
 namespace Bounan.Downloader.Worker.Extensions;
 
-public static class VideoKeyExtensions
+internal static class VideoKeyExtensions
 {
     public static string CalculateHash(this IVideoKey? videoKey)
     {

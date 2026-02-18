@@ -7,7 +7,7 @@ namespace Bounan.Downloader.Worker.Helpers;
 /// A fixed version of the <see cref="JsonParameterProcessor"/> that prevents using the parameter name as
 /// the configuration prefix.
 /// </summary>
-public class ValueOnlyJsonParameterProcessor : JsonParameterProcessor
+internal class ValueOnlyJsonParameterProcessor : JsonParameterProcessor
 {
     /// <summary>
     /// Returns an empty string to prevent using the parameter name as the configuration prefix.

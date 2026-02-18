@@ -7,18 +7,14 @@
   <ItemGroup>
     <PackageReference Include="Amazon.Extensions.Configuration.SystemsManager"/>
     <PackageReference Include="AWS.Logger.AspNetCore"/>
-    <PackageReference Include="AWSSDK.Extensions.NETCore.Setup"/>
-    <PackageReference Include="AWSSDK.Lambda"/>
-    <PackageReference Include="AWSSDK.SQS"/>
-    <PackageReference Include="Hls2TlgrUploader"/>
-    <PackageReference Include="JetBrains.Annotations"/>
     <PackageReference Include="Microsoft.Extensions.Hosting"/>
     <PackageReference Include="Microsoft.Extensions.Options.DataAnnotations"/>
-    <PackageReference Include="SixLabors.ImageSharp"/>
-    <PackageReference Include="SixLabors.ImageSharp.Drawing"/>
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Application\Application.csproj" />
     <ProjectReference Include="..\Common\cs\Common.csproj"/>
+    <ProjectReference Include="..\Domain\Domain.csproj" />
+    <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
   </ItemGroup>
 </Project>

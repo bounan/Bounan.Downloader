@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Bounan.Downloader.Infrastructure</RootNamespace>
+    <AssemblyName>Bounan.Downloader.Infrastructure</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AWSSDK.Extensions.NETCore.Setup"/>
+    <PackageReference Include="AWSSDK.Lambda"/>
+    <PackageReference Include="AWSSDK.SQS"/>
+    <PackageReference Include="Hls2TlgrUploader"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Common\cs\Common.csproj"/>
+    <ProjectReference Include="..\Domain\Domain.csproj" />
+  </ItemGroup>
+</Project>
