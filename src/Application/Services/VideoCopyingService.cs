@@ -7,7 +7,6 @@ using Bounan.Downloader.Application.Abstractions;
 using Bounan.Downloader.Application.Helpers;
 using Bounan.Downloader.Application.Options;
 using Bounan.Downloader.Domain.Clients;
-using Hls2TlgrUploader.Interfaces;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -21,7 +20,7 @@ internal partial class VideoCopyingService(
     ILoanApiClient loanApiClient,
     IAniManClient aniManClient,
     IThumbnailService thumbnailService,
-    IVideoUploadingService videoUploadingService)
+    IVideoUploader videoUploader)
     : IVideoCopyingService
 {
     private readonly ProcessingOptions processingOptions = processingConfig.Value;
@@ -40,7 +39,7 @@ internal partial class VideoCopyingService(
 
     private ILoanApiClient LoanApiClient => loanApiClient;
 
-    private IVideoUploadingService VideoUploadingService => videoUploadingService;
+    private IVideoUploader VideoUploader => videoUploader;
 
     private IThumbnailService ThumbnailService => thumbnailService;
 
@@ -83,14 +82,14 @@ internal partial class VideoCopyingService(
 
         var videoMetadata = new VideoMetadata(videoKey);
 
-        var message = await VideoUploadingService.CopyToTelegramAsync(
+        int messageId = await VideoUploader.CopyToTelegramAsync(
             videoParts,
             thumbnailStreamTask,
             EncodeMetadata(videoMetadata),
             cancellationToken);
-        Log.VideoUploaded(Logger, message.MessageId);
+        Log.VideoUploaded(Logger, messageId);
 
-        await SendResult(videoKey, message.MessageId, cancellationToken);
+        await SendResult(videoKey, messageId, cancellationToken);
     }
 
     private async Task<(Uri Playlist, Uri Thumbnail)> GetPlaylistAndThumbnailAsync(

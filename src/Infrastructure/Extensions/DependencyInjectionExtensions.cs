@@ -21,7 +21,8 @@ public static class DependencyInjectionExtensions
         _ = services
             .AddSingleton<IAniManClient, AniManClient>()
             .AddSingleton<ILoanApiClient, LoanApiClient>()
-            .AddSingleton<IShikimoriClient, ShikimoriClient>();
+            .AddSingleton<IShikimoriClient, ShikimoriClient>()
+            .AddSingleton<IVideoUploader, VideoUploader>();
 
         return services;
     }
