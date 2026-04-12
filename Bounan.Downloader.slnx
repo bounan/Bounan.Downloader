@@ -1,0 +1,20 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".dockerignore"/>
+    <File Path=".env"/>
+    <File Path="docker-compose.yml"/>
+    <File Path="Dockerfile"/>
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/Application/Application.csproj"/>
+    <Project Path="src/Common/cs/Common.csproj"/>
+    <Project Path="src/Domain/Domain.csproj"/>
+    <Project Path="src/Infrastructure/Infrastructure.csproj"/>
+    <Project Path="src/Worker/Worker.csproj"/>
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="src/Application.Tests/Application.Tests.csproj"/>
+    <Project Path="src/Infrastructure.Tests/Infrastructure.Tests.csproj"/>
+  </Folder>
+  <Project Path="AwsCdk/AwsCdk.csproj"/>
+</Solution>
