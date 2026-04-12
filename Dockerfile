@@ -1,5 +1,5 @@
 ﻿
-FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0@sha256:127d7d4d601ae26b8e04c54efb37e9ce8766931bded0ee59fcd799afd21d6850 AS build
 WORKDIR /src
 
 COPY ["Directory.Build.props", "Directory.Packages.props", "./"]
@@ -16,7 +16,7 @@ WORKDIR /src/Worker
 
 RUN dotnet publish "Worker.csproj" --no-restore --self-contained true --configuration Release --runtime linux-musl-x64 --output /app/publish
 
-FROM mcr.microsoft.com/dotnet/runtime-deps:10.0-alpine AS final
+FROM mcr.microsoft.com/dotnet/runtime-deps:10.0-alpine@sha256:9ec585b84e539eff25a0c925137263ecb900db78d47e02a3b9ceb5d5009551fb AS final
 
 VOLUME /tmp/bounan-downloader
 
