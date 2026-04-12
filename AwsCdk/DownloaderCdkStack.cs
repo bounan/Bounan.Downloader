@@ -18,12 +18,14 @@ namespace Bounan.Downloader.AwsCdk;
 
 internal sealed class DownloaderCdkStack : Stack
 {
+    private const string BootstrapConfigParameterPrefix = "/bounan/downloader/bootstrap-config";
     private const string RuntimeConfigParameterPrefix = "/bounan/downloader/runtime-config";
 
     internal DownloaderCdkStack(Construct scope, string id, IStackProps? props = null)
         : base(scope, id, props)
     {
         var config = new DownloaderCdkStackConfig(this, "bounan:", "/bounan/downloader/deploy-config/");
+        Out("Config", JsonConvert.SerializeObject(config));
 
         var user = new User(this, "User");
 
@@ -39,19 +41,28 @@ internal sealed class DownloaderCdkStack : Stack
 
         var accessKey = new CfnAccessKey(this, "AccessKey", new CfnAccessKeyProps { UserName = user.UserName });
 
-        SaveParameter(logGroup, videoRegisteredQueue, config, user);
+        SaveRuntimeParameter(logGroup, videoRegisteredQueue, config, user);
+        var bootstrapParameter = SaveBootstrapParameter(config, image, accessKey);
 
-        Out("Config", JsonConvert.SerializeObject(config));
-
-        string value = $"""
-                        WORKER_IMAGE_URI={image.ImageUri};
-                        AWS_REGION={Region};
-                        AWS_ACCESS_KEY_ID={accessKey.Ref};
-                        AWS_SECRET_ACCESS_KEY={accessKey.AttrSecretAccessKey};
-                        TELEGRAM_API_ID={config.TelegramAppId};
-                        TELEGRAM_API_HASH={config.TelegramAppHash}
-                        """;
-        Out("dotenv", value);
+        var updaterUser = new User(this, "UpdaterUser");
+        updaterUser.AddToPolicy(
+            new PolicyStatement(
+                new PolicyStatementProps
+                {
+                    Actions = ["ssm:GetParameter"],
+                    Resources = [bootstrapParameter.ParameterArn],
+                }));
+        var updaterUserCreds = new CfnAccessKey(
+            this,
+            "UpdaterUserAccessKey",
+            new CfnAccessKeyProps { UserName = updaterUser.UserName });
+        string updaterUserProfile = $"""
+                                     [profile downloader-updater]
+                                     region = {Region}
+                                     aws_access_key_id = {updaterUserCreds.Ref}
+                                     aws_secret_access_key = {updaterUserCreds.AttrSecretAccessKey}
+                                     """;
+        Out("UpdaterProfile", updaterUserProfile);
     }
 
     private DockerImageAsset BuildAndPushWorkerImage(IGrantable user)
@@ -160,7 +171,7 @@ internal sealed class DownloaderCdkStack : Stack
         noLogAlarm.AddAlarmAction(new AlarmActions.SnsAction(topic));
     }
 
-    private void SaveParameter(
+    private void SaveRuntimeParameter(
         LogGroup logGroup,
         Queue videoRegisteredQueue,
         DownloaderCdkStackConfig config,
@@ -240,6 +251,30 @@ internal sealed class DownloaderCdkStack : Stack
             ],
         };
         user.AttachInlinePolicy(new Policy(this, "ParameterPolicy", policyProps));
+    }
+
+    private StringParameter SaveBootstrapParameter(
+        DownloaderCdkStackConfig config,
+        DockerImageAsset image,
+        CfnAccessKey accessKey)
+    {
+        string dotenv = $"""
+                         WORKER_IMAGE_URI={image.ImageUri}
+                         AWS_REGION={Region}
+                         AWS_ACCESS_KEY_ID={accessKey.Ref}
+                         AWS_SECRET_ACCESS_KEY={accessKey.AttrSecretAccessKey}
+                         TELEGRAM_API_ID={config.TelegramAppId}
+                         TELEGRAM_API_HASH={config.TelegramAppHash}
+                         """;
+
+        var stringParameterProps = new StringParameterProps
+        {
+            ParameterName = BootstrapConfigParameterPrefix,
+            StringValue = dotenv,
+        };
+        var parameter = new StringParameter(this, "bootstrap-config", stringParameterProps);
+
+        return parameter;
     }
 
     private void Out(string key, string value)
