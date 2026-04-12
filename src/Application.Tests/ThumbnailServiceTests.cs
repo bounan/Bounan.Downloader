@@ -17,6 +17,13 @@ namespace Bounan.Downloader.Application.Tests;
 [SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "Not required for tests")]
 internal sealed class ThumbnailServiceTests
 {
+    [SetUp]
+    public void Setup()
+    {
+        // Create output directory if it doesn't exist
+        Directory.CreateDirectory("../../../Out");
+    }
+
     [Test]
     public void GetThumbnailPngStreamAsync_OriginalThumbnailUrlIsNull_ThrowsArgumentNullException()
     {

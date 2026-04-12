@@ -8,4 +8,4 @@ riderModule.iml
 *.user
 
 cdk.out/
-src/Worker.Tests/Out/
+/src/Application.Tests/Out/
