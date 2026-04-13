@@ -17,7 +17,7 @@
       - /tmp/bounan-downloader:mode=777
 
   telegram-bot-api-server:
-    image: aiogram/telegram-bot-api:latest@sha256:45daf6ec3526d200e9870509bf07e2836f7a80a3b580a3e33f58137d717aa3ae
+    image: aiogram/telegram-bot-api:latest@sha256:26820d9cf5637ad2abfa3b99043cb292b58c2a1018446dbe4b89cff6fef0169f
     deploy:
       restart_policy:
         max_attempts: 3
