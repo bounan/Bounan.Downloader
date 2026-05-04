@@ -8,7 +8,7 @@ namespace Bounan.Downloader.Infrastructure.Clients;
 
 public class ShikimoriClient(IHttpClientFactory httpClientFactory) : IShikimoriClient
 {
-    private static readonly Uri Endpoint = new("https://shikimori.one/api/graphql");
+    private static readonly Uri Endpoint = new("https://shikimori.io/api/graphql");
 
     private static readonly JsonSerializerOptions JsonSerializerOptions =
         new() { PropertyNameCaseInsensitive = true };
